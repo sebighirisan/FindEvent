@@ -1,4 +1,4 @@
-package com.FindEvent.FindEvent;
+package com.find.event;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

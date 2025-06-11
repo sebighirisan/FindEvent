@@ -1,4 +1,4 @@
-package com.FindEvent.FindEvent;
+package com.find.event;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
