@@ -23,6 +23,20 @@ public class GlobalExceptionHandler {
         return handleException(exception.getMessage(), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(FindEventBadRequestException.class)
+    @ResponseStatus
+    public ResponseEntity<ErrorDTO> handleFindEventBadRequestException(final FindEventBadRequestException exception, final HttpServletRequest request) {
+        log.error(exception.getMessage(), exception);
+        return handleException(exception.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(FindEventConflictException.class)
+    @ResponseStatus
+    public ResponseEntity<ErrorDTO> handleFindEventConflictException(final FindEventConflictException exception, final HttpServletRequest request) {
+        log.error(exception.getMessage(), exception);
+        return handleException(exception.getMessage(), HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(OptimisticLockException.class)
     @ResponseStatus
     public ResponseEntity<ErrorDTO> handleOptimisticLockException(final OptimisticLockException exception) {

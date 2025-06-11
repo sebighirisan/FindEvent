@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
     password    TEXT NOT NULL,
     first_name  VARCHAR(100) NOT NULL,
     last_name   VARCHAR(100) NOT NULL,
+    email       VARCHAR(100) NOT NULL,
     created_at  TIMESTAMP WITHOUT TIME ZONE,
     updated_at  TIMESTAMP WITHOUT TIME ZONE,
     created_by  VARCHAR(100),
