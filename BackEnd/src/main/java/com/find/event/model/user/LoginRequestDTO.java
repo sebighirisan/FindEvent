@@ -1,4 +1,4 @@
-package com.find.event.model;
+package com.find.event.model.user;
 
 import lombok.Getter;
 import lombok.Setter;

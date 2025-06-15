@@ -1,0 +1,172 @@
+package com.find.event.service.impl;
+
+import com.find.event.entity.EventEntity;
+import com.find.event.entity.EventStatusEntity;
+import com.find.event.entity.UserEntity;
+import com.find.event.enums.EventStatusEnum;
+import com.find.event.enums.EventTypeEnum;
+import com.find.event.exception.ErrorCode;
+import com.find.event.exception.FindEventBadRequestException;
+import com.find.event.exception.FindEventNotFoundException;
+import com.find.event.exception.FindEventUnauthorizedException;
+import com.find.event.mapper.EventMapper;
+import com.find.event.model.category.EventCategoryWithTypesDTO;
+import com.find.event.model.event.EventDTO;
+import com.find.event.model.event.EventRequestDTO;
+import com.find.event.model.event.UpdateEventStatusDTO;
+import com.find.event.repository.EventRepository;
+import com.find.event.service.EventService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
+import static com.find.event.enums.EventStatusEnum.*;
+import static com.find.event.utils.JwtUtils.getAuthenticatedUser;
+import static com.find.event.utils.ValidationUtils.validateEventRequest;
+import static com.find.event.utils.ValidationUtils.validateUpdateEventRequest;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
+
+@Service
+@RequiredArgsConstructor
+public class EventServiceImpl implements EventService {
+    private final EventMapper eventMapper;
+    private final EventRepository eventRepository;
+
+    private static final Map<EventStatusEnum, Set<EventStatusEnum>> statusTransitions = Map.of(
+            DRAFT, Set.of(PENDING),
+            PENDING, Set.of(APPROVED, DECLINED),
+            APPROVED, Set.of(DECLINED),
+            DECLINED, Set.of(APPROVED)
+    );
+
+    @Transactional(readOnly = true)
+    @Override
+    public EventDTO getEventById(Long eventId) {
+        return eventRepository
+                .findByIdWithPublisher(eventId)
+                .map(eventMapper::eventEntityToEventDTO)
+                .orElseThrow(() -> new FindEventNotFoundException(ErrorCode.EVENT_NOT_FOUND, eventId));
+    }
+
+    @Transactional
+    @Override
+    public EventDTO createEvent(EventRequestDTO eventRequest) {
+        validateEventRequest(eventRequest);
+
+        EventStatusEntity eventStatus = new EventStatusEntity();
+
+        EventEntity newEventEntity = eventMapper.eventRequestDtoToEventEntity(eventRequest);
+        newEventEntity.setPublisher(getAuthenticatedUser());
+        newEventEntity.setEventStatus(eventStatus);
+
+        eventStatus.setEvent(newEventEntity);
+
+        return eventMapper.eventEntityToEventDTO(eventRepository.save(newEventEntity));
+    }
+
+    @Transactional
+    @Override
+    public void updateEvent(Long eventId, EventRequestDTO updatedEvent) {
+        validateUpdateEventRequest(updatedEvent);
+
+        EventEntity event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new FindEventNotFoundException(ErrorCode.EVENT_NOT_FOUND, eventId));
+        EventStatusEntity eventStatus = event.getEventStatus();
+        EventStatusEnum currentStatus = eventStatus.getStatus();
+
+        // Validate end date
+        LocalDateTime updatedEndDate = updatedEvent.getEndDate();
+        if (updatedEndDate != null &&
+                updatedEvent.getStartDate() == null
+                && updatedEndDate.isBefore(event.getStartDate())) {
+            throw new FindEventBadRequestException(ErrorCode.INVALID_END_DATE);
+        }
+
+        if (DECLINED.equals(currentStatus)) {
+            eventStatus.setStatus(PENDING);
+            eventStatus.setMessage(null);
+        }
+
+        eventMapper.updateEvent(event, updatedEvent);
+    }
+
+    @Transactional
+    @Override
+    public void deleteEventById(Long eventId) {
+        EventEntity event = eventRepository.findByIdWithPublisher(eventId).orElseThrow(
+                () -> new FindEventNotFoundException(ErrorCode.EVENT_NOT_FOUND, eventId));
+
+        UserEntity publisher = event.getPublisher();
+        UserEntity authUser = getAuthenticatedUser();
+
+        if (!Objects.equals(publisher.getId(), authUser.getId()) && !authUser.isAdmin()) {
+            throw new FindEventUnauthorizedException(ErrorCode.UNAUTHORIZED);
+        }
+
+        eventRepository.delete(event);
+    }
+
+    @Transactional
+    @Override
+    public void updateEventStatus(Long eventId, UpdateEventStatusDTO updatedEventStatus) {
+        EventEntity event = eventRepository.findByIdWithPublisher(eventId).orElseThrow(
+                () -> new FindEventNotFoundException(ErrorCode.EVENT_NOT_FOUND, eventId));
+        EventStatusEntity eventStatusEntity = event.getEventStatus();
+        EventStatusEnum eventStatus = eventStatusEntity.getStatus();
+        EventStatusEnum newStatus = updatedEventStatus.getNewStatus();
+
+        UserEntity authUser = getAuthenticatedUser();
+        UserEntity publisher = event.getPublisher();
+
+        if (!statusTransitions.get(eventStatus).contains(newStatus)) {
+            throw new FindEventBadRequestException(ErrorCode.INVALID_EVENT_STATUS);
+        }
+
+        boolean hasAdmin = authUser.isAdmin();
+
+        switch (newStatus) {
+            case PENDING:
+                if (!Objects.equals(authUser, publisher)) {
+                    throw new FindEventUnauthorizedException(ErrorCode.UNAUTHORIZED);
+                }
+                break;
+            case DECLINED, APPROVED:
+                if (!hasAdmin || Objects.equals(authUser, publisher)) {
+                    throw new FindEventUnauthorizedException(ErrorCode.UNAUTHORIZED);
+                }
+                break;
+            default:
+                break;
+        }
+
+        eventStatusEntity.setMessage(updatedEventStatus.getMessage());
+        eventStatusEntity.setStatus(newStatus);
+    }
+
+    @Override
+    public List<EventCategoryWithTypesDTO> getEventCategoriesWithTypes() {
+        return Arrays.stream(EventTypeEnum.values())
+                .collect(groupingBy(
+                        EventTypeEnum::getEventCategory,
+                        mapping(EventTypeEnum::convertToEventTypeDTO, toList()))
+                )
+                .entrySet()
+                .stream()
+                .map(entrySet ->
+                        EventCategoryWithTypesDTO.builder()
+                                .category(entrySet.getKey().getName())
+                                .types(entrySet.getValue())
+                                .build()
+                )
+                .toList();
+    }
+}

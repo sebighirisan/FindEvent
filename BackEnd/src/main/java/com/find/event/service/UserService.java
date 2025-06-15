@@ -1,10 +1,10 @@
 package com.find.event.service;
 
-import com.find.event.model.LoginRequestDTO;
-import com.find.event.model.UserDTO;
+import com.find.event.model.user.CreateUserDTO;
+import com.find.event.model.user.LoginRequestDTO;
 
 public interface UserService {
-    String signup(UserDTO user);
+    String signup(CreateUserDTO user);
 
     String login(LoginRequestDTO loginRequest);
 }

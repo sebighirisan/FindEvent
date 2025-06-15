@@ -5,10 +5,11 @@ import com.find.event.entity.UserEntity;
 import com.find.event.exception.ErrorCode;
 import com.find.event.exception.FindEventBadRequestException;
 import com.find.event.exception.FindEventConflictException;
+import com.find.event.exception.FindEventInternalServerError;
 import com.find.event.exception.FindEventNotFoundException;
 import com.find.event.mapper.UserMapper;
-import com.find.event.model.LoginRequestDTO;
-import com.find.event.model.UserDTO;
+import com.find.event.model.user.LoginRequestDTO;
+import com.find.event.model.user.CreateUserDTO;
 import com.find.event.repository.RoleRepository;
 import com.find.event.repository.UserRepository;
 import com.find.event.service.JwtService;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +40,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public String signup(UserDTO user) {
+    public String signup(CreateUserDTO user) {
         validateUserDTO(user);
 
         String username = user.getUsername();
@@ -66,22 +68,18 @@ public class UserServiceImpl implements UserService {
     public String login(LoginRequestDTO loginRequest) {
         validateLoginRequest(loginRequest);
 
-        String username = loginRequest.getUsername();
+        String usernameOrEmail = loginRequest.getUsername();
 
         try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(username, loginRequest.getPassword())
+            Authentication auth = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(usernameOrEmail, loginRequest.getPassword())
             );
+
+            return jwtService.generateToken((UserEntity) auth.getPrincipal());
         } catch (BadCredentialsException ex) {
             throw new FindEventBadRequestException(ErrorCode.BAD_CREDENTIALS);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new FindEventBadRequestException(ErrorCode.LOGIN_ERROR);
+            throw new FindEventInternalServerError(ErrorCode.LOGIN_ERROR, e);
         }
-
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new FindEventNotFoundException(ErrorCode.USER_NOT_FOUND_BY_USERNAME_OR_EMAIL, username));
-
-        return jwtService.generateToken(user);
     }
 }

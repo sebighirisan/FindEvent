@@ -1,7 +1,7 @@
 package com.find.event.controller;
 
-import com.find.event.model.LoginRequestDTO;
-import com.find.event.model.UserDTO;
+import com.find.event.model.user.CreateUserDTO;
+import com.find.event.model.user.LoginRequestDTO;
 import com.find.event.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,8 +16,8 @@ public class AuthController {
     private final UserService userService;
 
     @PostMapping("/signup")
-    public String signup(@RequestBody UserDTO userDTO) {
-        return userService.signup(userDTO);
+    public String signup(@RequestBody CreateUserDTO createUserDTO) {
+        return userService.signup(createUserDTO);
     }
 
     @PostMapping("/login")

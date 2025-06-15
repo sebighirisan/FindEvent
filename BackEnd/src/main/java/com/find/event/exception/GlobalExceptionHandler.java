@@ -30,11 +30,25 @@ public class GlobalExceptionHandler {
         return handleException(exception.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(FindEventUnauthorizedException.class)
+    @ResponseStatus
+    public ResponseEntity<ErrorDTO> handleFindEventUnauthorizedException(final FindEventUnauthorizedException exception, final HttpServletRequest request) {
+        log.error(exception.getMessage(), exception);
+        return handleException(exception.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
     @ExceptionHandler(FindEventConflictException.class)
     @ResponseStatus
     public ResponseEntity<ErrorDTO> handleFindEventConflictException(final FindEventConflictException exception, final HttpServletRequest request) {
         log.error(exception.getMessage(), exception);
         return handleException(exception.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(FindEventInternalServerError.class)
+    @ResponseStatus
+    public ResponseEntity<ErrorDTO> handleFindEventInternalServerError(final FindEventInternalServerError exception, final HttpServletRequest request) {
+        log.error(exception.getMessage(), exception);
+        return handleException(exception.getCustomMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(OptimisticLockException.class)

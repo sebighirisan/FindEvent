@@ -1,16 +1,16 @@
 CREATE TABLE IF NOT EXISTS users (
-    id          SERIAL,
-    username    VARCHAR(30) NOT NULL,
-    password    TEXT NOT NULL,
-    first_name  VARCHAR(100) NOT NULL,
-    last_name   VARCHAR(100) NOT NULL,
-    email       VARCHAR(100) NOT NULL,
-    created_at  TIMESTAMP WITHOUT TIME ZONE,
-    updated_at  TIMESTAMP WITHOUT TIME ZONE,
-    created_by  VARCHAR(100),
-    updated_by  VARCHAR(100),
-    version     INTEGER,
-    CONSTRAINT pk_users PRIMARY KEY (id)
+  id          SERIAL,
+  username    VARCHAR(30) NOT NULL,
+  password    TEXT NOT NULL,
+  first_name  VARCHAR(100) NOT NULL,
+  last_name   VARCHAR(100) NOT NULL,
+  email       VARCHAR(100) NOT NULL,
+  created_at  TIMESTAMP WITHOUT TIME ZONE,
+  updated_at  TIMESTAMP WITHOUT TIME ZONE,
+  created_by  VARCHAR(100),
+  updated_by  VARCHAR(100),
+  version     INTEGER,
+  CONSTRAINT pk_users PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS roles (
@@ -22,9 +22,8 @@ CREATE TABLE IF NOT EXISTS roles (
 INSERT INTO roles (id, name)
 VALUES
   (1, 'USER'),
-  (2, 'CREATOR'),
-  (3, 'ADMIN'),
-  (4, 'SUPERUSER');
+  (2, 'ADMIN'),
+  (3, 'SUPERUSER');
 
 CREATE TABLE users_roles (
   user_id INTEGER NOT NULL,
@@ -32,4 +31,105 @@ CREATE TABLE users_roles (
   CONSTRAINT pk_users_roles PRIMARY KEY (user_id, role_id),
   CONSTRAINT fk_users_roles_users FOREIGN KEY (user_id) REFERENCES users (id),
   CONSTRAINT fk_users_roles_roles FOREIGN KEY (role_id) REFERENCES roles (id)
+);
+
+CREATE TYPE event_type_enum AS enum
+  (
+    -- Music
+    'OUTDOOR_CONCERT',
+    'LOCAL_CONCERT',
+    'MUSIC_FESTIVAL',
+    'ORCHESTRA_PERFORMANCE',
+
+    -- Sport & Fitness
+    'MARATHON',
+    'RACE',
+    'TOURNAMENT',
+
+    -- Performance & Visual Arts
+    'THEATER_PERFORMANCE',
+    'STREET_PERFORMANCE',
+    'FILM_SCREENING',
+    'ART_EXPO',
+
+    -- Food & Drink Events
+    'FOOD_TRUCK_FESTIVAL',
+    'COOKING_COMPETITION',
+    'GALA_DINNER',
+
+    -- Educational & Professional
+    'CONFERENCE',
+    'NETWORKING_EVENT',
+    'WORKSHOP',
+    'HACKATHON',
+    'TRAINING_SEMINAR',
+
+    -- Charity
+    'FUNDRAISER',
+    'AUCTION',
+    'VOLUNTEERING',
+
+    -- Activism & Social Movement
+    'PROTEST',
+    'AWARENESS_MOVEMENT',
+    'PUBLIC_GATHERING',
+
+    -- Other
+    'OTHER'
+  );
+CREATE CAST (CHARACTER VARYING AS event_type_enum) WITH inout AS implicit;
+
+CREATE TABLE events (
+  id           SERIAL,
+  publisher_id INTEGER NOT NULL,
+  name         VARCHAR(100) NOT NULL,
+  description  TEXT NOT NULL,
+  type         event_type_enum NOT NULL,
+  location     TEXT NOT NULL,
+  start_date   TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+  end_date     TIMESTAMP WITHOUT TIME ZONE,
+  hyperlink    TEXT,
+  splash_image BYTEA,
+  created_at   TIMESTAMP WITHOUT TIME ZONE,
+  updated_at   TIMESTAMP WITHOUT TIME ZONE,
+  created_by   VARCHAR(100),
+  updated_by   VARCHAR(100),
+  version      INTEGER,
+  CONSTRAINT pk_events PRIMARY KEY (id),
+  CONSTRAINT fk_events_publisher_id FOREIGN KEY (publisher_id) REFERENCES users (id)
+);
+
+CREATE TYPE event_status_enum AS enum
+  (
+    'DRAFT',
+    'PENDING',
+    'APPROVED',
+    'DECLINED'
+  );
+CREATE CAST (CHARACTER VARYING AS event_status_enum) WITH inout AS implicit;
+
+CREATE TABLE event_status (
+  event_id INTEGER,
+  status   event_status_enum NOT NULL,
+  message  VARCHAR(100),
+  CONSTRAINT pk_event_requests PRIMARY KEY (event_id),
+  CONSTRAINT fk_event_requests FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE
+);
+
+
+CREATE TYPE attendance_status_enum AS enum
+  (
+    'GOING',
+    'INTERESTED',
+    'NOT_INTERESTED'
+  );
+CREATE CAST (CHARACTER VARYING AS attendance_status_enum) WITH inout AS implicit;
+
+CREATE TABLE users_events (
+  user_id           INTEGER NOT NULL,
+  event_id          INTEGER NOT NULL,
+  attendance_status attendance_status_enum NOT NULL,
+  CONSTRAINT pk_users_events PRIMARY KEY (user_id, event_id),
+  CONSTRAINT fk_users_events_users FOREIGN KEY (user_id) REFERENCES users (id),
+  CONSTRAINT fk_users_event_event FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE
 );

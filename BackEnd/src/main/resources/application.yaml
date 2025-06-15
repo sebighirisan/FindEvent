@@ -1,16 +1,16 @@
 server:
-  port: 8080
+  port: 8081
 
 spring:
   flyway:
-    dex-waste-management-system:
+    find-event:
       locations: classpath:db.migration
     enabled: true
     baseline-on-migrate: true
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/find-event?currentSchema=public
+    url: jdbc:postgresql://localhost:5436/find-event?currentSchema=public
     username: find-event-admin
     password: find-event-pwd
   jpa:
@@ -22,6 +22,10 @@ spring:
         show_sql: true
         jdbc:
           batch_size: 200
+  servlet:
+    multipart:
+      max-file-size: 3MB
+      max-request-size: 3MB
 
 jwt:
   secret: uY7$eL!9kP#sR3qZ@2vNfX!tD8^zKwL%gE1bJ0mH

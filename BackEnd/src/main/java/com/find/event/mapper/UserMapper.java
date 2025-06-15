@@ -3,7 +3,8 @@ package com.find.event.mapper;
 import com.find.event.entity.UserEntity;
 import com.find.event.mapper.annotations.IgnoreAuditMappings;
 import com.find.event.mapper.annotations.IgnoreIdMapping;
-import com.find.event.model.UserDTO;
+import com.find.event.model.user.CreateUserDTO;
+import com.find.event.model.user.UserSummaryDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
@@ -14,5 +15,7 @@ public interface UserMapper {
     @IgnoreAuditMappings
     @IgnoreIdMapping
     @Mapping(target = "password", ignore = true)
-    UserEntity userDTOToUserEntity(UserDTO user);
+    UserEntity userDTOToUserEntity(CreateUserDTO user);
+
+    UserSummaryDTO userEntityToUserSummaryDto(UserEntity userEntity);
 }

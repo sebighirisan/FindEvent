@@ -2,7 +2,6 @@ package com.find.event.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -19,8 +18,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.find.event.utils.RoleConstants.ADMIN;
 
 @Entity
 @Table(name = "users", schema = "public")
@@ -53,13 +55,19 @@ public class UserEntity extends AuditEntity implements UserDetails {
     @Column(name = "email", nullable = false)
     private String email;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(
             name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<RoleEntity> roles = new HashSet<>();
+
+    public boolean isAdmin() {
+        return roles.stream()
+                .map(RoleEntity::getName)
+                .anyMatch(roleName -> roleName.equals(ADMIN));
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -86,6 +94,21 @@ public class UserEntity extends AuditEntity implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+
+        UserEntity otherUser = (UserEntity) other;
+
+        return Objects.equals(id, otherUser.getId());
     }
 }
 

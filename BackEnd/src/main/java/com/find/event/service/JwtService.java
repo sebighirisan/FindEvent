@@ -1,5 +1,6 @@
 package com.find.event.service;
 
+import com.find.event.entity.UserEntity;
 import com.find.event.security.JwtProperties;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -17,7 +18,7 @@ import java.util.Date;
 public class JwtService {
     private final JwtProperties jwtProperties;
 
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(UserEntity userDetails) {
         Instant now = Instant.now();
 
         return Jwts.builder()

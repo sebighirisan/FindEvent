@@ -1,11 +1,11 @@
-package com.find.event.model;
+package com.find.event.model.user;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class UserDTO {
+public class CreateUserDTO {
     private String firstName;
     private String lastName;
     private String username;

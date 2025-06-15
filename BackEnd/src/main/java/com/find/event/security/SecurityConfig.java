@@ -15,7 +15,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import static com.find.event.utils.RoleConstants.ADMIN;
-import static com.find.event.utils.RoleConstants.CREATOR;
 import static com.find.event.utils.RoleConstants.SUPERUSER;
 
 @Configuration
@@ -31,7 +30,6 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/admin/**").hasAnyRole(ADMIN, SUPERUSER)
-                        .requestMatchers("/creator/**").hasAnyRole(CREATOR, ADMIN, SUPERUSER)
                         .requestMatchers("/auth/**", "/swagger-ui/**").permitAll()
                         .anyRequest().authenticated()
                 )
