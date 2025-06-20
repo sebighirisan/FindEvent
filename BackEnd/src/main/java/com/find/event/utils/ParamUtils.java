@@ -64,18 +64,40 @@ public final class ParamUtils {
         return filtersMap;
     }
 
+    /**
+     * Extracts and parses the start date from the provided filter map.
+     *
+     * @param filters the map containing filter parameters
+     * @return the parsed {@link LocalDate} start date, or {@code null} if not present
+     */
     public static LocalDate extractStartDate(Map<String, String> filters) {
         return Optional.ofNullable(filters.get(START_DATE))
                 .map(startDate -> convertToLocalDate("start date", startDate))
                 .orElse(null);
     }
 
+    /**
+     * Extracts and parses the end date from the provided filter map.
+     *
+     * @param filters the map containing filter parameters
+     * @return the parsed {@link LocalDate} end date, or {@code null} if not present
+     */
     public static LocalDate extractEndDate(Map<String, String> filters) {
         return Optional.ofNullable(filters.get(END_DATE))
                 .map(endDate -> convertToLocalDate("end date", endDate))
                 .orElse(null);
     }
 
+    /**
+     * Extracts and validates the event status from the provided filter map.
+     * <p>
+     * If present, the status string is trimmed and validated against allowed {@link EventStatusEnum} values,
+     * taking into account the user's permissions.
+     *
+     * @param filters     the map containing filter parameters
+     * @param publisherId the ID of the publisher for permission validation
+     * @return the trimmed status string, or {@code null} if not provided
+     */
     public static String extractStatus(Map<String, String> filters, Integer publisherId) {
         String status = filters.get(STATUS);
 
@@ -89,6 +111,13 @@ public final class ParamUtils {
         return trimmedStatus;
     }
 
+    /**
+     * Extracts and parses the publisher ID from the provided filter map.
+     *
+     * @param filters the map containing filter parameters
+     * @return the parsed publisher ID as {@link Integer}, or {@code null} if not present
+     * @throws FindEventBadRequestException if parsing fails.
+     */
     public static Integer extractPublisherId(Map<String, String> filters) {
         String publisherId = filters.get(PUBLISHER_ID);
 
@@ -103,6 +132,16 @@ public final class ParamUtils {
         }
     }
 
+    /**
+     * Extracts and parses the event categories from the provided filter map.
+     * <p>
+     * Expects the categories string to be a properly formatted array string (e.g., "[Category1;Category2]").
+     * Validates each category against {@link EventTypeEnum}.
+     *
+     * @param filters the map containing filter parameters
+     * @return a list of valid category names, or {@code null} if not provided
+     * @throws FindEventBadRequestException if format or validation fails.
+     */
     public static List<String> extractCategories(Map<String, String> filters) {
         List<String> categories = splitArray("tipul evenimentului", filters.get(CATEGORIES));
 
@@ -116,8 +155,8 @@ public final class ParamUtils {
     /**
      * Converts the string representation of LocalDate to its corresponding object.
      *
-     * @param name              The name of the field whose value should be converted.
-     * @param localDateAsString The time value as string.
+     * @param name              the name of the field whose value should be converted.
+     * @param localDateAsString the time value as string.
      * @return A {@link LocalDate} object holding the converted value.
      * @throws FindEventBadRequestException If the value cannot be converted to LocalDate object.
      */
@@ -152,6 +191,17 @@ public final class ParamUtils {
                 .toList();
     }
 
+    /**
+     * Splits the provided array string into a list of strings.
+     * <p>
+     * The array string must be enclosed in square brackets. The splitting is performed using
+     * a predefined array parameter separator.
+     *
+     * @param name  the name of the field being parsed (used for error reporting)
+     * @param array the string representing the array to split
+     * @return the list of extracted elements, or {@code null} if input is blank
+     * @throws FindEventBadRequestException if the format is invalid.
+     */
     private static List<String> splitArray(String name, String array) {
         if (StringUtils.isBlank(array)) {
             return null;

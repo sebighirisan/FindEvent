@@ -55,6 +55,13 @@ public final class ValidationUtils {
         }
     }
 
+    /**
+     * Validates the provided {@link CreateUserDTO} for user registration.
+     * Checks that all mandatory fields are present and that the email and password meet required formats.
+     *
+     * @param user the {@link CreateUserDTO} to validate
+     * @throws FindEventBadRequestException if validation fails.
+     */
     public static void validateUserDTO(CreateUserDTO user) {
         // Validate mandatory fields
         checkForMissingField(user, CreateUserDTO::getFirstName, "First name");
@@ -74,12 +81,26 @@ public final class ValidationUtils {
         }
     }
 
+    /**
+     * Validates the provided {@link LoginRequestDTO} for login requests.
+     * Ensures that username (or email) and password are provided.
+     *
+     * @param loginRequest the {@link LoginRequestDTO} to validate
+     * @throws FindEventBadRequestException if any required fields are missing.
+     */
     public static void validateLoginRequest(LoginRequestDTO loginRequest) {
         // Validate mandatory fields
         checkForMissingField(loginRequest, LoginRequestDTO::getUsername, "Username / Email");
         checkForMissingField(loginRequest, LoginRequestDTO::getPassword, "Password");
     }
 
+    /**
+     * Validates the provided {@link EventRequestDTO} for event creation.
+     * Ensures all required fields are present and that the start and end dates are valid.
+     *
+     * @param eventRequest the {@link EventRequestDTO} to validate
+     * @throws FindEventBadRequestException if validation fails.
+     */
     public static void validateEventRequest(EventRequestDTO eventRequest) {
         // Validate mandatory fields
         checkForMissingField(eventRequest, EventRequestDTO::getName, "Event name");
@@ -95,6 +116,13 @@ public final class ValidationUtils {
         validateEndDate(startDate, endDate);
     }
 
+    /**
+     * Validates the provided {@link EventRequestDTO} for event updates.
+     * Only validates start and end dates if a start date is provided.
+     *
+     * @param updatedEventRequest the {@link EventRequestDTO} containing updated event data
+     * @throws FindEventBadRequestException if date validation fails.
+     */
     public static void validateUpdateEventRequest(EventRequestDTO updatedEventRequest) {
         LocalDateTime startDate = updatedEventRequest.getStartDate();
 
@@ -106,6 +134,14 @@ public final class ValidationUtils {
         validateEndDate(startDate, updatedEventRequest.getEndDate());
     }
 
+    /**
+     * Validates if the provided {@link EventStatusEnum} corresponding to a filter parameter is allowed
+     * for the current authenticated user.
+     *
+     * @param eventStatusEnum the event status to validate
+     * @param publisherId     the ID of the user who published the event
+     * @throws FindEventUnauthorizedException if the user is not authorized to filter by the given status
+     */
     public static void validateEventStatus(EventStatusEnum eventStatusEnum, Integer publisherId) {
         UserEntity authenticatedUser = getAuthenticatedUser();
 
@@ -119,12 +155,32 @@ public final class ValidationUtils {
         }
     }
 
+    /**
+     * Checks if a mandatory string field is present and non-blank.
+     *
+     * @param obj           the object containing the field
+     * @param getFieldValue a function to extract the field value from the object
+     * @param fieldName     the name of the field (for error reporting)
+     * @param <T>           the type of the object
+     * @throws FindEventBadRequestException if the field is missing.
+     */
     private static <T> void checkForMissingField(T obj, Function<T, String> getFieldValue, String fieldName) {
         if (StringUtils.isBlank(getFieldValue.apply(obj))) {
             throw new FindEventBadRequestException(ErrorCode.MANDATORY_VALUE_IS_MISSING, fieldName);
         }
     }
 
+    /**
+     * Checks if a mandatory field satisfies a custom condition.
+     *
+     * @param obj           the object containing the field
+     * @param getFieldValue a function extracting the field value from the object
+     * @param fieldName     the name of the field (for error reporting)
+     * @param condition     a predicate defining the valid condition for the field
+     * @param <T>           the type of the object
+     * @param <V>           the type of the field
+     * @throws FindEventBadRequestException if the condition fails.
+     */
     private static <T, V> void checkForMissingField(T obj,
                                                     Function<T, V> getFieldValue,
                                                     String fieldName,
@@ -134,6 +190,15 @@ public final class ValidationUtils {
         }
     }
 
+    /**
+     * Validates if the provided password meets the defined security requirements.
+     * <p>
+     * Requirements include: at least 8 characters, one uppercase letter, one lowercase letter, one digit,
+     * and one special character.
+     *
+     * @param password the password string to validate
+     * @return {@code true} if the password is valid, {@code false} otherwise
+     */
     private static boolean isValidPassword(String password) {
         return password.length() >= 8 &&
                password.matches(".*[A-Z].*") &&      // at least one uppercase
@@ -142,16 +207,35 @@ public final class ValidationUtils {
                password.matches(".*[!@#$%^&*()].*"); // at least one special character
     }
 
+    /**
+     * Validates if the provided email address has a valid format.
+     *
+     * @param email the email string to validate
+     * @return {@code true} if the email is valid, {@code false} otherwise
+     */
     private static boolean isValidEmail(String email) {
         return EMAIL_PATTERN.matcher(email).matches();
     }
 
+    /**
+     * Validates that the start date is at least one day in the future.
+     *
+     * @param startDate the start date to validate
+     * @throws FindEventBadRequestException if the start date is invalid.
+     */
     private static void validateStartDate(LocalDateTime startDate) {
         if (startDate.isBefore(LocalDateTime.now().plusDays(1))) {
             throw new FindEventBadRequestException(ErrorCode.INVALID_START_DATE);
         }
     }
 
+    /**
+     * Validates that the end date is after the start date, if an end date is provided.
+     *
+     * @param startDate the start date
+     * @param endDate   the end date to validate
+     * @throws FindEventBadRequestException if the end date is invalid.
+     */
     private static void validateEndDate(LocalDateTime startDate, LocalDateTime endDate) {
         if (endDate != null && startDate.isAfter(endDate)) {
             throw new FindEventBadRequestException(ErrorCode.INVALID_END_DATE);

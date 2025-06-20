@@ -11,6 +11,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class JwtUtils {
 
+    /**
+     * Retrieves the currently authenticated user from the Spring Security context.
+     *
+     * @return the authenticated {@link UserEntity}
+     * @throws FindEventUnauthorizedException if no valid authenticated user is found
+     */
     public static UserEntity getAuthenticatedUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated()) {

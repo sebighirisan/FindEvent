@@ -110,5 +110,10 @@ public class UserEntity extends AuditEntity implements UserDetails {
 
         return Objects.equals(id, otherUser.getId());
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.id);
+    }
 }
 

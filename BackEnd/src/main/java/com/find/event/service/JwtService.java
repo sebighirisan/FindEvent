@@ -1,53 +1,32 @@
 package com.find.event.service;
 
 import com.find.event.entity.UserEntity;
-import com.find.event.security.JwtProperties;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
 
-import javax.crypto.SecretKey;
-import java.time.Instant;
-import java.util.Date;
+public interface JwtService {
+    /**
+     * Generates a JWT token for the specified user.
+     *
+     * @param userDetails the {@link UserEntity} containing user information to include in the token payload
+     * @return a JWT token representing the authenticated user
+     */
+    String generateToken(UserEntity userDetails);
 
-@Service
-@RequiredArgsConstructor
-public class JwtService {
-    private final JwtProperties jwtProperties;
+    /**
+     * Extracts the username from the provided JWT token.
+     *
+     * @param token the JWT token from which to extract the username
+     * @return the username extracted from the token
+     */
+    String extractUsername(String token);
 
-    public String generateToken(UserEntity userDetails) {
-        Instant now = Instant.now();
-
-        return Jwts.builder()
-                .subject(userDetails.getUsername())
-                .claim("roles", userDetails.getAuthorities().stream()
-                        .map(GrantedAuthority::getAuthority)
-                        .toList())
-                .issuedAt(new Date())
-                .expiration(Date.from(now.plusSeconds(jwtProperties.getExpiration())))
-                .signWith(getSigningKey())
-                .compact();
-    }
-
-    public String extractUsername(String token) {
-        return Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .getSubject();
-    }
-
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        String username = extractUsername(token);
-        return username.equals(userDetails.getUsername());
-    }
-
-    private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes());
-    }
+    /**
+     * Validates the provided JWT token against the specified user details.
+     *
+     * @param token       the JWT token to validate
+     * @param userDetails the {@link UserDetails} to validate against the token's claims
+     * @return {@code true} if the token is valid, {@code false} otherwise
+     */
+    boolean isTokenValid(String token, UserDetails userDetails);
 }
 
