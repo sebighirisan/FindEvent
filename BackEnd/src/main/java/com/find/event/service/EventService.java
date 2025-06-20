@@ -1,5 +1,6 @@
 package com.find.event.service;
 
+import com.find.event.enums.AttendanceStatusEnum;
 import com.find.event.model.pagination.PaginatedModel;
 import com.find.event.model.category.EventCategoryWithTypesDTO;
 import com.find.event.model.event.EventDTO;
@@ -66,6 +67,8 @@ public interface EventService {
      * @param updateEventStatus the {@link UpdateEventStatusDTO} containing the new status information
      */
     void updateEventStatus(Long eventId, UpdateEventStatusDTO updateEventStatus);
+
+    void updateAttendanceStatus(Long eventId, AttendanceStatusEnum attendanceStatus);
 
     /**
      * Retrieves a list of all event categories along with their associated event types.

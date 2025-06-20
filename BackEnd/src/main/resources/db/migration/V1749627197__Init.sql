@@ -125,11 +125,22 @@ CREATE TYPE attendance_status_enum AS enum
   );
 CREATE CAST (CHARACTER VARYING AS attendance_status_enum) WITH inout AS implicit;
 
-CREATE TABLE users_events (
+CREATE TABLE attendances (
   user_id           INTEGER NOT NULL,
   event_id          INTEGER NOT NULL,
   attendance_status attendance_status_enum NOT NULL,
-  CONSTRAINT pk_users_events PRIMARY KEY (user_id, event_id),
-  CONSTRAINT fk_users_events_users FOREIGN KEY (user_id) REFERENCES users (id),
-  CONSTRAINT fk_users_event_event FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE
+  CONSTRAINT pk_attendances PRIMARY KEY (user_id, event_id),
+  CONSTRAINT fk_attendances_users FOREIGN KEY (user_id) REFERENCES users (id),
+  CONSTRAINT fk_attendances_events FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE
+);
+
+CREATE TABLE reviews (
+  user_id  INTEGER NOT NULL,
+  event_id INTEGER NOT NULL,
+  rating   INTEGER NOT NULL,
+  message  TEXT,
+  CONSTRAINT pk_reviews PRIMARY KEY (user_id, event_id),
+  CONSTRAINT fk_reviews_users FOREIGN KEY (user_id) REFERENCES users (id),
+  CONSTRAINT fk_reviews_events FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE,
+  CONSTRAINT ch_reviews_rating CHECK (rating <= 5 AND rating >= 1)
 );

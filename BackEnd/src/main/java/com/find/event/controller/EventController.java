@@ -1,5 +1,6 @@
 package com.find.event.controller;
 
+import com.find.event.enums.AttendanceStatusEnum;
 import com.find.event.model.pagination.PaginatedModel;
 import com.find.event.model.category.EventCategoryWithTypesDTO;
 import com.find.event.model.event.EventDTO;
@@ -77,5 +78,13 @@ public class EventController {
     @GetMapping("/types")
     public ResponseEntity<List<EventCategoryWithTypesDTO>> getEventCategoriesWithTypes() {
         return new ResponseEntity<>(eventService.getEventCategoriesWithTypes(), HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}/attendance")
+    public ResponseEntity<Void> updateAttendanceStatus(@PathVariable("id") Long eventId,
+                                                       @RequestParam("status") AttendanceStatusEnum attendanceStatus) {
+        eventService.updateAttendanceStatus(eventId, attendanceStatus);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

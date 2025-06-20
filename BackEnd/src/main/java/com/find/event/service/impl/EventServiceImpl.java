@@ -1,8 +1,11 @@
 package com.find.event.service.impl;
 
+import com.find.event.entity.AttendanceEntity;
+import com.find.event.entity.UserEventId;
 import com.find.event.entity.EventEntity;
 import com.find.event.entity.EventStatusEntity;
 import com.find.event.entity.UserEntity;
+import com.find.event.enums.AttendanceStatusEnum;
 import com.find.event.enums.EventStatusEnum;
 import com.find.event.enums.EventTypeEnum;
 import com.find.event.exception.ErrorCode;
@@ -15,6 +18,7 @@ import com.find.event.model.category.EventCategoryWithTypesDTO;
 import com.find.event.model.event.EventDTO;
 import com.find.event.model.event.EventRequestDTO;
 import com.find.event.model.event.UpdateEventStatusDTO;
+import com.find.event.repository.jpa.AttendanceJpaRepository;
 import com.find.event.repository.jpa.EventJpaRepository;
 import com.find.event.repository.nativequeries.EventRepository;
 import com.find.event.service.EventService;
@@ -57,6 +61,7 @@ import static java.util.stream.Collectors.toList;
 public class EventServiceImpl implements EventService {
     private final EventMapper eventMapper;
     private final EventJpaRepository eventJpaRepository;
+    private final AttendanceJpaRepository attendanceJpaRepository;
     private final EventRepository eventRepository;
 
     private static final Map<EventStatusEnum, Set<EventStatusEnum>> statusTransitions = Map.of(
@@ -198,6 +203,31 @@ public class EventServiceImpl implements EventService {
 
         eventStatusEntity.setMessage(updatedEventStatus.getMessage());
         eventStatusEntity.setStatus(newStatus);
+    }
+
+    @Override
+    @Transactional
+    public void updateAttendanceStatus(Long eventId, AttendanceStatusEnum attendanceStatus) {
+        EventEntity event = eventJpaRepository.findById(eventId)
+                .orElseThrow(() -> new FindEventNotFoundException(ErrorCode.EVENT_NOT_FOUND, eventId));
+        UserEntity loggedInUser = getAuthenticatedUser();
+
+        if (!EventStatusEnum.APPROVED.equals(event.getEventStatus().getStatus())) {
+            throw new FindEventBadRequestException(ErrorCode.INVALID_UNAPPROVED_EVENT, eventId);
+        }
+
+        if (Objects.equals(event.getPublisher().getId(), loggedInUser.getId())) {
+            throw new FindEventBadRequestException(ErrorCode.INVALID_OWN_EVENT);
+        }
+
+        UserEventId userEventId = new UserEventId(loggedInUser.getId(), eventId);
+
+        AttendanceEntity attendanceEntity = attendanceJpaRepository
+                .findById(userEventId)
+                .orElseGet(() -> new AttendanceEntity(loggedInUser, event));
+
+        attendanceEntity.setAttendanceStatus(attendanceStatus);
+        attendanceJpaRepository.save(attendanceEntity);
     }
 
     @Override
