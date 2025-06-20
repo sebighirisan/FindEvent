@@ -7,11 +7,11 @@ import com.find.event.exception.FindEventBadRequestException;
 import com.find.event.exception.FindEventConflictException;
 import com.find.event.exception.FindEventInternalServerError;
 import com.find.event.exception.FindEventNotFoundException;
-import com.find.event.mapper.UserMapper;
+import com.find.event.mapper.mapstruct.UserMapper;
 import com.find.event.model.user.LoginRequestDTO;
 import com.find.event.model.user.CreateUserDTO;
-import com.find.event.repository.RoleRepository;
-import com.find.event.repository.UserRepository;
+import com.find.event.repository.jpa.RoleJpaRepository;
+import com.find.event.repository.jpa.UserJpaRepository;
 import com.find.event.service.JwtService;
 import com.find.event.service.UserService;
 import jakarta.transaction.Transactional;
@@ -32,8 +32,8 @@ import static com.find.event.utils.ValidationUtils.validateUserDTO;
 @Service
 @Slf4j
 public class UserServiceImpl implements UserService {
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
+    private final UserJpaRepository userJpaRepository;
+    private final RoleJpaRepository roleJpaRepository;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final UserMapper userMapper;
@@ -44,23 +44,23 @@ public class UserServiceImpl implements UserService {
         validateUserDTO(user);
 
         String username = user.getUsername();
-        if (userRepository.existsByUsername(username)) {
+        if (userJpaRepository.existsByUsername(username)) {
             throw new FindEventConflictException(ErrorCode.USERNAME_ALREADY_TAKEN, username);
         }
 
         String email = user.getEmail();
-        if (userRepository.existsByEmail(email)) {
+        if (userJpaRepository.existsByEmail(email)) {
             throw new FindEventConflictException(ErrorCode.EMAIL_ALREADY_TAKEN, email);
         }
 
         UserEntity newUserEntity = userMapper.userDTOToUserEntity(user);
         newUserEntity.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        RoleEntity userRole = roleRepository.findByName(USER)
+        RoleEntity userRole = roleJpaRepository.findByName(USER)
                 .orElseThrow(() -> new FindEventNotFoundException(ErrorCode.ROLE_NOT_FOUND, USER));
         newUserEntity.getRoles().add(userRole);
 
-        userRepository.save(newUserEntity);
+        userJpaRepository.save(newUserEntity);
 
         return jwtService.generateToken(newUserEntity);
     }

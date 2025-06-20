@@ -1,4 +1,4 @@
-package com.find.event.mapper;
+package com.find.event.mapper.mapstruct;
 
 import com.find.event.entity.EventEntity;
 import com.find.event.exception.ErrorCode;

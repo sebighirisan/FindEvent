@@ -2,6 +2,7 @@ package com.find.event.model.event;
 
 import com.find.event.enums.EventStatusEnum;
 import com.find.event.model.user.UserSummaryDTO;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,6 +10,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@Builder
 public class EventDTO {
     private String name;
     private String description;

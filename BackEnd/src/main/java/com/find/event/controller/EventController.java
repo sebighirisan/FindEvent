@@ -1,5 +1,6 @@
 package com.find.event.controller;
 
+import com.find.event.model.PaginatedModel;
 import com.find.event.model.category.EventCategoryWithTypesDTO;
 import com.find.event.model.event.EventDTO;
 import com.find.event.model.event.EventRequestDTO;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -31,6 +33,16 @@ public class EventController {
     @GetMapping("/{id}")
     public ResponseEntity<EventDTO> getEventById(@PathVariable("id") Long eventId) {
         return new ResponseEntity<>(eventService.getEventById(eventId), HttpStatus.OK);
+    }
+
+    @GetMapping
+    public ResponseEntity<PaginatedModel<EventDTO>> getEvents(@RequestParam("filterBy") String filterBy,
+                                                              @RequestParam("filterValue") String filterValue,
+                                                              @RequestParam("orderBy") String orderBy,
+                                                              @RequestParam("orderValue") String orderValue,
+                                                              @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                                                              @RequestParam(name = "pageNumber", defaultValue = "0") Integer pageNumber) {
+        return new ResponseEntity<>(eventService.getEvents(filterBy, filterValue, orderBy, orderValue, pageSize, pageNumber), HttpStatus.OK);
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

@@ -1,5 +1,6 @@
 package com.find.event.utils;
 
+import com.find.event.enums.OrderEnum;
 import com.find.event.exception.ErrorCode;
 import com.find.event.exception.FindEventBadRequestException;
 import com.find.event.model.user.CreateUserDTO;
@@ -10,7 +11,9 @@ import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -20,6 +23,31 @@ public final class ValidationUtils {
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
             "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
     );
+
+    /**
+     * Checks if a value given as parameter is a valid {@link OrderEnum} field.
+     *
+     * @param name the value to be checked
+     * @throws FindEventBadRequestException if the value is not a valid {@link OrderEnum} field.
+     */
+    public static void validateOrderEnum(final String name) {
+        if (Arrays.stream(OrderEnum.values()).noneMatch(order -> order.getName().equalsIgnoreCase(name))) {
+            throw new FindEventBadRequestException(ErrorCode.INVALID_ENUM_VALUE, name, Arrays.toString(OrderEnum.values()));
+        }
+    }
+
+    /**
+     * Checks if a value given as parameter is a valid ordering parameter.
+     *
+     * @param param       the value to be checked.
+     * @param orderParams a collection of possible order parameters.
+     * @throws FindEventBadRequestException if the provided value is not a valid ordering parameter.
+     */
+    public static void validateOrderParam(final String param, final Set<String> orderParams) {
+        if (orderParams.stream().noneMatch(value -> value.equals(param))) {
+            throw new FindEventBadRequestException(ErrorCode.INVALID_ORDER_PARAM, param, orderParams);
+        }
+    }
 
     public static void validateUserDTO(CreateUserDTO user) {
         // Validate mandatory fields

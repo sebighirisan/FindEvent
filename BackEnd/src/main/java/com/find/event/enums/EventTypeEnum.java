@@ -1,8 +1,12 @@
 package com.find.event.enums;
 
+import com.find.event.exception.ErrorCode;
+import com.find.event.exception.FindEventBadRequestException;
 import com.find.event.model.category.EventTypeDTO;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
+import java.util.Arrays;
 
 @RequiredArgsConstructor
 @Getter
@@ -48,6 +52,13 @@ public enum EventTypeEnum {
 
     // Other
     OTHER("Other", EventCategoryEnum.OTHER);
+
+    public static EventTypeEnum of(String value) {
+        return Arrays.stream(EventTypeEnum.values())
+                .filter(eventType -> eventType.name().equals(value))
+                .findFirst()
+                .orElseThrow(() -> new FindEventBadRequestException(ErrorCode.INVALID_ENUM_VALUE, value, Arrays.toString(EventTypeEnum.values())));
+    }
 
     public EventTypeDTO convertToEventTypeDTO() {
         return EventTypeDTO.builder()

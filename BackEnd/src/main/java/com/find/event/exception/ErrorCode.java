@@ -19,6 +19,9 @@ public enum ErrorCode {
     INVALID_START_DATE("The event start date must be at least one week from today to allow proper scheduling and preparation."),
     INVALID_END_DATE("The event end date must occur after the start date."),
     INVALID_EVENT_STATUS("The event status is invalid"),
+    DIFFERENT_SIZES("%s and %s must have the same length"),
+    INVALID_ENUM_VALUE("'%s' is not a valid option. Valid options are %s."),
+    INVALID_ORDER_PARAM("Sorting parameter '%s' cannot be used for this query. Available parameters are: %s"),
 
     // Unauthorized
     UNAUTHORIZED("You are not authorized to perform this action"),

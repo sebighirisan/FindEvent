@@ -1,4 +1,4 @@
-package com.find.event.mapper;
+package com.find.event.mapper.mapstruct;
 
 import com.find.event.entity.UserEntity;
 import com.find.event.mapper.annotations.IgnoreAuditMappings;
