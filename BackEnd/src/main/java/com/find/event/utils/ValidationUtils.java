@@ -1,14 +1,18 @@
 package com.find.event.utils;
 
+import com.find.event.entity.UserEntity;
+import com.find.event.enums.EventStatusEnum;
 import com.find.event.enums.OrderEnum;
 import com.find.event.exception.ErrorCode;
 import com.find.event.exception.FindEventBadRequestException;
+import com.find.event.exception.FindEventUnauthorizedException;
 import com.find.event.model.user.CreateUserDTO;
 import com.find.event.model.user.LoginRequestDTO;
 import com.find.event.model.event.EventRequestDTO;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -17,6 +21,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+
+import static com.find.event.utils.JwtUtils.getAuthenticatedUser;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ValidationUtils {
@@ -98,6 +104,19 @@ public final class ValidationUtils {
 
         validateStartDate(startDate);
         validateEndDate(startDate, updatedEventRequest.getEndDate());
+    }
+
+    public static void validateEventStatus(EventStatusEnum eventStatusEnum, Integer publisherId) {
+        UserEntity authenticatedUser = getAuthenticatedUser();
+
+        if (ObjectUtils.nullSafeEquals(authenticatedUser.getId(), publisherId)
+                || EventStatusEnum.APPROVED.equals(eventStatusEnum)) {
+            return;
+        }
+
+        if (EventStatusEnum.DRAFT.equals(eventStatusEnum) || !authenticatedUser.isAdmin()) {
+            throw new FindEventUnauthorizedException(ErrorCode.UNAUTHORIZED);
+        }
     }
 
     private static <T> void checkForMissingField(T obj, Function<T, String> getFieldValue, String fieldName) {

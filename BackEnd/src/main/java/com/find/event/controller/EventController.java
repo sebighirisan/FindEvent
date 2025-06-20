@@ -1,6 +1,6 @@
 package com.find.event.controller;
 
-import com.find.event.model.PaginatedModel;
+import com.find.event.model.pagination.PaginatedModel;
 import com.find.event.model.category.EventCategoryWithTypesDTO;
 import com.find.event.model.event.EventDTO;
 import com.find.event.model.event.EventRequestDTO;
@@ -42,7 +42,8 @@ public class EventController {
                                                               @RequestParam("orderValue") String orderValue,
                                                               @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
                                                               @RequestParam(name = "pageNumber", defaultValue = "0") Integer pageNumber) {
-        return new ResponseEntity<>(eventService.getEvents(filterBy, filterValue, orderBy, orderValue, pageSize, pageNumber), HttpStatus.OK);
+        return new ResponseEntity<>(eventService.getEvents(
+                pageNumber, pageSize, filterBy, filterValue, orderBy, orderValue), HttpStatus.OK);
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

@@ -10,28 +10,44 @@ import com.find.event.exception.FindEventBadRequestException;
 import com.find.event.exception.FindEventNotFoundException;
 import com.find.event.exception.FindEventUnauthorizedException;
 import com.find.event.mapper.mapstruct.EventMapper;
-import com.find.event.model.PaginatedModel;
+import com.find.event.model.pagination.PaginatedModel;
 import com.find.event.model.category.EventCategoryWithTypesDTO;
 import com.find.event.model.event.EventDTO;
 import com.find.event.model.event.EventRequestDTO;
 import com.find.event.model.event.UpdateEventStatusDTO;
 import com.find.event.repository.jpa.EventJpaRepository;
+import com.find.event.repository.nativequeries.EventRepository;
 import com.find.event.service.EventService;
+import com.find.event.utils.ParamUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.find.event.enums.EventStatusEnum.*;
 import static com.find.event.utils.JwtUtils.getAuthenticatedUser;
+import static com.find.event.utils.PagingMetadataUtil.buildPagingMetadata;
+import static com.find.event.utils.ParamUtils.extractCategories;
+import static com.find.event.utils.ParamUtils.extractEndDate;
+import static com.find.event.utils.ParamUtils.extractPublisherId;
+import static com.find.event.utils.ParamUtils.extractStartDate;
+import static com.find.event.utils.ParamUtils.extractStatus;
 import static com.find.event.utils.ValidationUtils.validateEventRequest;
 import static com.find.event.utils.ValidationUtils.validateUpdateEventRequest;
+import static com.find.event.utils.constants.FilterParamConstants.CATEGORIES;
+import static com.find.event.utils.constants.FilterParamConstants.END_DATE;
+import static com.find.event.utils.constants.FilterParamConstants.NAME;
+import static com.find.event.utils.constants.FilterParamConstants.PUBLISHER_ID;
+import static com.find.event.utils.constants.FilterParamConstants.START_DATE;
+import static com.find.event.utils.constants.FilterParamConstants.STATUS;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
@@ -41,6 +57,7 @@ import static java.util.stream.Collectors.toList;
 public class EventServiceImpl implements EventService {
     private final EventMapper eventMapper;
     private final EventJpaRepository eventJpaRepository;
+    private final EventRepository eventRepository;
 
     private static final Map<EventStatusEnum, Set<EventStatusEnum>> statusTransitions = Map.of(
             DRAFT, Set.of(PENDING),
@@ -51,15 +68,32 @@ public class EventServiceImpl implements EventService {
 
     @Transactional(readOnly = true)
     @Override
-    public PaginatedModel<EventDTO> getEvents(String filterBy,
+    public PaginatedModel<EventDTO> getEvents(Integer pageNumber,
+                                              Integer pageSize,
+                                              String filterBy,
                                               String filterValue,
                                               String orderBy,
-                                              String orderValue,
-                                              Integer pageSize,
-                                              Integer pageNumber) {
+                                              String orderValue) {
+        Map<String, String> filters = ParamUtils.filtersToMap(filterBy, filterValue);
 
+        Integer publisherId = extractPublisherId(filters);
+        String name = Optional.ofNullable(filters.get(NAME)).map(String::trim).orElse(null);
 
-        return null;
+        Map<String, Object> processedFilters = new HashMap<>();
+        processedFilters.put(START_DATE, extractStartDate(filters));
+        processedFilters.put(END_DATE, extractEndDate(filters));
+        processedFilters.put(PUBLISHER_ID, publisherId);
+        processedFilters.put(NAME, name);
+        processedFilters.put(STATUS, extractStatus(filters, publisherId));
+        processedFilters.put(CATEGORIES, extractCategories(filters));
+
+        List<EventDTO> result = eventRepository.getEvents(pageNumber, pageSize, orderBy, orderValue, processedFilters);
+        Long resultCount = eventRepository.getEventsCount(processedFilters);
+
+        return new PaginatedModel<>(
+                buildPagingMetadata(pageNumber, pageSize, resultCount),
+                result
+        );
     }
 
     @Transactional(readOnly = true)

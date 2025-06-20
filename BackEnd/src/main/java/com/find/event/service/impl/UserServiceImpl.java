@@ -24,7 +24,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import static com.find.event.utils.RoleConstants.USER;
+import static com.find.event.utils.constants.RoleConstants.USER;
 import static com.find.event.utils.ValidationUtils.validateLoginRequest;
 import static com.find.event.utils.ValidationUtils.validateUserDTO;
 

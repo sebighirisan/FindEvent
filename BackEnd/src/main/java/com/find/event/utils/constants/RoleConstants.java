@@ -1,4 +1,4 @@
-package com.find.event.utils;
+package com.find.event.utils.constants;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

@@ -22,7 +22,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.find.event.utils.RoleConstants.ADMIN;
+import static com.find.event.utils.constants.RoleConstants.ADMIN;
 
 @Entity
 @Table(name = "users", schema = "public")

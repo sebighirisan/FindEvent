@@ -8,6 +8,7 @@ import jakarta.persistence.Tuple;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import static com.find.event.utils.MapperUtils.extractByteArrayFromTuple;
 import static com.find.event.utils.MapperUtils.extractLocalDateTimeValueFromTuple;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -15,7 +16,7 @@ public final class EventTupleMapper {
 
     public static EventDTO tupleToEventDto(Tuple tuple) {
         UserSummaryDTO publisher = UserSummaryDTO.builder()
-                .id(tuple.get("publisherId", Long.class))
+                .id((long) tuple.get("publisherId", Integer.class))
                 .username(tuple.get("publisherUsername", String.class))
                 .build();
 
@@ -29,7 +30,7 @@ public final class EventTupleMapper {
                 .startDate(extractLocalDateTimeValueFromTuple(tuple, "startDate"))
                 .endDate(extractLocalDateTimeValueFromTuple(tuple, "endDate"))
                 .hyperlink(tuple.get("hyperlink", String.class))
-                .splashImage(tuple.get("splashImage", String.class))
+                .splashImage(extractByteArrayFromTuple(tuple, "splashImage"))
                 .publisher(publisher)
                 .status(eventStatusEnum)
                 .build();

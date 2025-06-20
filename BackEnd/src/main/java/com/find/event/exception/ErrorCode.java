@@ -22,6 +22,8 @@ public enum ErrorCode {
     DIFFERENT_SIZES("%s and %s must have the same length"),
     INVALID_ENUM_VALUE("'%s' is not a valid option. Valid options are %s."),
     INVALID_ORDER_PARAM("Sorting parameter '%s' cannot be used for this query. Available parameters are: %s"),
+    INVALID_FILTER_PARAM("Filter parameter '%s' corresponding to the %s is invalid"),
+    INVALID_ARRAY("Filter parameter '%s' corresponding to the %s is not a valid array"),
 
     // Unauthorized
     UNAUTHORIZED("You are not authorized to perform this action"),
