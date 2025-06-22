@@ -14,6 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -52,10 +53,6 @@ public class EventEntity extends AuditEntity {
     @Column(name = "end_date")
     private LocalDateTime endDate;
 
-    @NotBlank
-    @Column(name = "location", nullable = false)
-    private String location;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
     private EventTypeEnum type;
@@ -73,7 +70,12 @@ public class EventEntity extends AuditEntity {
     private byte[] splashImage;
 
     @OneToOne(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    @PrimaryKeyJoinColumn
     private EventStatusEntity eventStatus;
+
+    @OneToOne(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    @PrimaryKeyJoinColumn
+    private LocationEntity location;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<AttendanceEntity> eventAttendances = new HashSet<>();

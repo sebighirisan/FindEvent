@@ -12,4 +12,9 @@ public final class FilterParamConstants {
     public static final String STATUS = "status";
     public static final String CATEGORIES = "categories";
     public static final String PUBLISHER_ID = "publisherId";
+
+    // Location
+    public static final String PROXIMITY = "proximity";
+    public static final String LONGITUDE = "longitude";
+    public static final String LATITUDE = "latitude";
 }

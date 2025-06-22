@@ -27,7 +27,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +40,9 @@ import static com.find.event.utils.JwtUtils.getAuthenticatedUser;
 import static com.find.event.utils.PagingMetadataUtil.buildPagingMetadata;
 import static com.find.event.utils.ParamUtils.extractCategories;
 import static com.find.event.utils.ParamUtils.extractEndDate;
+import static com.find.event.utils.ParamUtils.extractLatitude;
+import static com.find.event.utils.ParamUtils.extractLongitude;
+import static com.find.event.utils.ParamUtils.extractProximity;
 import static com.find.event.utils.ParamUtils.extractPublisherId;
 import static com.find.event.utils.ParamUtils.extractStartDate;
 import static com.find.event.utils.ParamUtils.extractStatus;
@@ -48,7 +50,10 @@ import static com.find.event.utils.ValidationUtils.validateEventRequest;
 import static com.find.event.utils.ValidationUtils.validateUpdateEventRequest;
 import static com.find.event.utils.constants.FilterParamConstants.CATEGORIES;
 import static com.find.event.utils.constants.FilterParamConstants.END_DATE;
+import static com.find.event.utils.constants.FilterParamConstants.LATITUDE;
+import static com.find.event.utils.constants.FilterParamConstants.LONGITUDE;
 import static com.find.event.utils.constants.FilterParamConstants.NAME;
+import static com.find.event.utils.constants.FilterParamConstants.PROXIMITY;
 import static com.find.event.utils.constants.FilterParamConstants.PUBLISHER_ID;
 import static com.find.event.utils.constants.FilterParamConstants.START_DATE;
 import static com.find.event.utils.constants.FilterParamConstants.STATUS;
@@ -91,6 +96,9 @@ public class EventServiceImpl implements EventService {
         processedFilters.put(NAME, name);
         processedFilters.put(STATUS, extractStatus(filters, publisherId));
         processedFilters.put(CATEGORIES, extractCategories(filters));
+        processedFilters.put(PROXIMITY, extractProximity(filters));
+        processedFilters.put(LONGITUDE, extractLongitude(filters));
+        processedFilters.put(LATITUDE, extractLatitude(filters));
 
         List<EventDTO> result = eventRepository.getEvents(pageNumber, pageSize, orderBy, orderValue, processedFilters);
         Long resultCount = eventRepository.getEventsCount(processedFilters);
@@ -120,6 +128,7 @@ public class EventServiceImpl implements EventService {
         EventEntity newEventEntity = eventMapper.eventRequestDtoToEventEntity(eventRequest);
         newEventEntity.setPublisher(getAuthenticatedUser());
         newEventEntity.setEventStatus(eventStatus);
+        newEventEntity.getLocation().setEvent(newEventEntity);
 
         eventStatus.setEvent(newEventEntity);
 
@@ -129,27 +138,19 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @Override
     public void updateEvent(Long eventId, EventRequestDTO updatedEvent) {
-        validateUpdateEventRequest(updatedEvent);
-
-        EventEntity event = eventJpaRepository.findById(eventId)
+        EventEntity existingEvent = eventJpaRepository.findById(eventId)
                 .orElseThrow(() -> new FindEventNotFoundException(ErrorCode.EVENT_NOT_FOUND, eventId));
-        EventStatusEntity eventStatus = event.getEventStatus();
+        EventStatusEntity eventStatus = existingEvent.getEventStatus();
         EventStatusEnum currentStatus = eventStatus.getStatus();
 
-        // Validate end date
-        LocalDateTime updatedEndDate = updatedEvent.getEndDate();
-        if (updatedEndDate != null &&
-                updatedEvent.getStartDate() == null
-                && updatedEndDate.isBefore(event.getStartDate())) {
-            throw new FindEventBadRequestException(ErrorCode.INVALID_END_DATE);
-        }
+        validateUpdateEventRequest(updatedEvent, existingEvent);
 
         if (DECLINED.equals(currentStatus)) {
             eventStatus.setStatus(PENDING);
             eventStatus.setMessage(null);
         }
 
-        eventMapper.updateEvent(event, updatedEvent);
+        eventMapper.updateEvent(existingEvent, updatedEvent);
     }
 
     @Transactional

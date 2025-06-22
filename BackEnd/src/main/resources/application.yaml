@@ -10,7 +10,7 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/find-event?currentSchema=public
+    url: jdbc:postgresql://localhost:5436/find-event?currentSchema=public
     username: find-event-admin
     password: find-event-pwd
   jpa:

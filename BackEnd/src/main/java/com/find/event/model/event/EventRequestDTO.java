@@ -1,6 +1,7 @@
 package com.find.event.model.event;
 
 import com.find.event.enums.EventTypeEnum;
+import com.find.event.model.location.LocationDTO;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,6 +17,6 @@ public class EventRequestDTO {
     private LocalDateTime endDate;
     private EventTypeEnum type;
     private String hyperlink;
-    private String location;
+    private LocationDTO location;
     private MultipartFile splashImage;
 }

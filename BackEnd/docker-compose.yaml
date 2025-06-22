@@ -1,12 +1,11 @@
 version: '3.9'
 
 services:
-  # WMS DB
   find-event:
-    image: postgres:15.2
+    image: postgis/postgis:15-3.5
     restart: unless-stopped
     ports:
-      - '5432:5432'
+      - '5436:5432'
     environment:
       POSTGRES_DB: find-event
       POSTGRES_PASSWORD: find-event-pwd

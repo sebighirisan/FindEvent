@@ -37,10 +37,10 @@ public class EventController {
     }
 
     @GetMapping
-    public ResponseEntity<PaginatedModel<EventDTO>> getEvents(@RequestParam("filterBy") String filterBy,
-                                                              @RequestParam("filterValue") String filterValue,
-                                                              @RequestParam("orderBy") String orderBy,
-                                                              @RequestParam("orderValue") String orderValue,
+    public ResponseEntity<PaginatedModel<EventDTO>> getEvents(@RequestParam(name = "filterBy", required = false) String filterBy,
+                                                              @RequestParam(name = "filterValue", required = false) String filterValue,
+                                                              @RequestParam(name = "orderBy", required = false) String orderBy,
+                                                              @RequestParam(name = "orderValue", required = false) String orderValue,
                                                               @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
                                                               @RequestParam(name = "pageNumber", defaultValue = "0") Integer pageNumber) {
         return new ResponseEntity<>(eventService.getEvents(

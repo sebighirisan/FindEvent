@@ -45,6 +45,16 @@ public class EventRepository {
             (
               CAST(:publisherId AS INTEGER) IS NULL
               OR u.id = CAST(:publisherId AS INTEGER)
+            ) AND
+            (
+              CAST(:proximity AS INTEGER) IS NULL
+              OR CAST(:latitude AS NUMERIC) IS NULL
+              OR CAST(:longitude AS NUMERIC) IS NULL
+              OR ST_DWithin(
+                l.coordinates,
+                ST_MakePoint(CAST(:longitude AS NUMERIC), CAST(:latitude AS NUMERIC))::geography,
+                CAST(:proximity AS INTEGER)
+              )
             )
             """;
 
@@ -62,16 +72,20 @@ public class EventRepository {
                 e.updated_at AS updatedAt,
                 u.id AS publisherId,
                 u.username AS publisherUsername,
-                es.status::varchar AS status
+                es.status::varchar AS status,
+                l.name AS locationName,
+                l.coordinates AS coordinates
             FROM events e
             JOIN users u ON e.publisher_id = u.id
             JOIN event_status es ON e.id = es.event_id
+            JOIN locations l ON e.id = l.event_id
             """ + WHERE_CLAUSE;
 
     private static final String EVENT_COUNT_QUERY = """
             SELECT COUNT(*) FROM events e
             JOIN users u ON e.publisher_id = u.id
             JOIN event_status es ON e.id = es.event_id
+            JOIN locations l ON e.id = l.event_id
             """ + WHERE_CLAUSE;
 
     @PersistenceContext

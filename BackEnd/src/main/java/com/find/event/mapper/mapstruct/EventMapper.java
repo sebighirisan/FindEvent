@@ -20,7 +20,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Base64;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = UserMapper.class)
+@Mapper(
+        componentModel = "spring",
+        unmappedTargetPolicy = ReportingPolicy.IGNORE,
+        uses = {UserMapper.class, LocationMapper.class}
+)
 public interface EventMapper {
     @Mapping(target = "status", source = "eventStatus.status")
     @Mapping(target = "type", source = "type.name")
@@ -34,8 +38,11 @@ public interface EventMapper {
     EventEntity eventRequestDtoToEventEntity(EventRequestDTO eventRequest);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @IgnoreIdMapping
+    @IgnoreAuditMappings
     @Mapping(target = "publisher", ignore = true)
     @Mapping(target = "splashImage", qualifiedByName = "convertMultipartToByteArray")
+    @Mapping(target = "location", qualifiedByName = "updateLocationEntity")
     void updateEvent(@MappingTarget EventEntity event, EventRequestDTO updatedEvent);
 
     @Named("convertSplashImageToBase64")

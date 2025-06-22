@@ -1,6 +1,7 @@
 package com.find.event.model.event;
 
 import com.find.event.enums.EventStatusEnum;
+import com.find.event.model.location.LocationDTO;
 import com.find.event.model.user.UserSummaryDTO;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,6 +19,7 @@ public class EventDTO {
     private String type;
     private String hyperlink;
     private String splashImage;
+    private LocationDTO location;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private EventStatusEnum status;

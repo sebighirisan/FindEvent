@@ -1,11 +1,13 @@
 package com.find.event.utils;
 
+import com.find.event.entity.EventEntity;
 import com.find.event.entity.UserEntity;
 import com.find.event.enums.EventStatusEnum;
 import com.find.event.enums.OrderEnum;
 import com.find.event.exception.ErrorCode;
 import com.find.event.exception.FindEventBadRequestException;
 import com.find.event.exception.FindEventUnauthorizedException;
+import com.find.event.model.location.LocationDTO;
 import com.find.event.model.user.CreateUserDTO;
 import com.find.event.model.user.LoginRequestDTO;
 import com.find.event.model.event.EventRequestDTO;
@@ -17,6 +19,7 @@ import org.springframework.util.ObjectUtils;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -106,7 +109,17 @@ public final class ValidationUtils {
         checkForMissingField(eventRequest, EventRequestDTO::getName, "Event name");
         checkForMissingField(eventRequest, EventRequestDTO::getDescription, "Event description");
         checkForMissingField(eventRequest, EventRequestDTO::getHyperlink, "External link");
-        checkForMissingField(eventRequest, EventRequestDTO::getStartDate, "Start Date", Objects::nonNull);
+        checkForMissingField(eventRequest, EventRequestDTO::getStartDate, "Start date", Objects::nonNull);
+        checkForMissingField(eventRequest, EventRequestDTO::getLocation, "Location details", Objects::nonNull);
+
+        // Validate location
+        LocationDTO location = eventRequest.getLocation();
+        checkForMissingField(location, LocationDTO::getName, "Location name");
+        checkForMissingField(location, LocationDTO::getLongitude, "Longitude", Objects::nonNull);
+        checkForMissingField(location, LocationDTO::getLatitude, "Latitude", Objects::nonNull);
+
+        validateLatitude(location.getLatitude());
+        validateLongitude(location.getLongitude());
 
         // Validate start date and end date
         LocalDateTime startDate = eventRequest.getStartDate();
@@ -118,20 +131,48 @@ public final class ValidationUtils {
 
     /**
      * Validates the provided {@link EventRequestDTO} for event updates.
-     * Only validates start and end dates if a start date is provided.
      *
      * @param updatedEventRequest the {@link EventRequestDTO} containing updated event data
-     * @throws FindEventBadRequestException if date validation fails.
+     * @throws FindEventBadRequestException if date or location validation fails.
      */
-    public static void validateUpdateEventRequest(EventRequestDTO updatedEventRequest) {
-        LocalDateTime startDate = updatedEventRequest.getStartDate();
+    public static void validateUpdateEventRequest(EventRequestDTO updatedEventRequest, EventEntity existingEvent) {
+        // Validate location
+        LocationDTO updatedLocation = updatedEventRequest.getLocation();
 
-        if (startDate == null) {
-            return;
+        if (updatedLocation != null) {
+            validateLatitude(updatedLocation.getLatitude());
+            validateLongitude(updatedLocation.getLongitude());
+        }
+
+        // Validate start date and end date
+        LocalDateTime startDate = updatedEventRequest.getStartDate();
+        LocalDateTime updatedEndDate = updatedEventRequest.getEndDate();
+        if (updatedEndDate != null &&
+                startDate == null
+                && updatedEndDate.isBefore(existingEvent.getStartDate())) {
+            throw new FindEventBadRequestException(ErrorCode.INVALID_END_DATE);
         }
 
         validateStartDate(startDate);
         validateEndDate(startDate, updatedEventRequest.getEndDate());
+    }
+
+    public static void validateLatitude(Double latitude) {
+        Optional.ofNullable(latitude)
+                .ifPresent(existingLat -> {
+                    if (existingLat < -90 || existingLat > 90) {
+                        throw new FindEventBadRequestException(ErrorCode.INVALID_LATITUDE, existingLat);
+                    }
+                });
+    }
+
+    public static void validateLongitude(Double longitude) {
+        Optional.ofNullable(longitude)
+                .ifPresent(existingLong -> {
+                    if (existingLong < -180 || existingLong > 180) {
+                        throw new FindEventBadRequestException(ErrorCode.INVALID_LONGITUDE, existingLong);
+                    }
+                });
     }
 
     /**
@@ -201,10 +242,10 @@ public final class ValidationUtils {
      */
     private static boolean isValidPassword(String password) {
         return password.length() >= 8 &&
-               password.matches(".*[A-Z].*") &&      // at least one uppercase
-               password.matches(".*[a-z].*") &&      // at least one lowercase
-               password.matches(".*\\d.*") &&        // at least one digit
-               password.matches(".*[!@#$%^&*()].*"); // at least one special character
+                password.matches(".*[A-Z].*") &&      // at least one uppercase
+                password.matches(".*[a-z].*") &&      // at least one lowercase
+                password.matches(".*\\d.*") &&        // at least one digit
+                password.matches(".*[!@#$%^&*()].*"); // at least one special character
     }
 
     /**
@@ -224,7 +265,7 @@ public final class ValidationUtils {
      * @throws FindEventBadRequestException if the start date is invalid.
      */
     private static void validateStartDate(LocalDateTime startDate) {
-        if (startDate.isBefore(LocalDateTime.now().plusDays(1))) {
+        if (startDate != null && startDate.isBefore(LocalDateTime.now().plusDays(1))) {
             throw new FindEventBadRequestException(ErrorCode.INVALID_START_DATE);
         }
     }
@@ -237,7 +278,7 @@ public final class ValidationUtils {
      * @throws FindEventBadRequestException if the end date is invalid.
      */
     private static void validateEndDate(LocalDateTime startDate, LocalDateTime endDate) {
-        if (endDate != null && startDate.isAfter(endDate)) {
+        if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
             throw new FindEventBadRequestException(ErrorCode.INVALID_END_DATE);
         }
     }

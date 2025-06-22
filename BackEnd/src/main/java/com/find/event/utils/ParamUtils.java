@@ -20,8 +20,13 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static com.find.event.utils.ValidationUtils.validateEventStatus;
+import static com.find.event.utils.ValidationUtils.validateLatitude;
+import static com.find.event.utils.ValidationUtils.validateLongitude;
 import static com.find.event.utils.constants.FilterParamConstants.CATEGORIES;
 import static com.find.event.utils.constants.FilterParamConstants.END_DATE;
+import static com.find.event.utils.constants.FilterParamConstants.LATITUDE;
+import static com.find.event.utils.constants.FilterParamConstants.LONGITUDE;
+import static com.find.event.utils.constants.FilterParamConstants.PROXIMITY;
 import static com.find.event.utils.constants.FilterParamConstants.PUBLISHER_ID;
 import static com.find.event.utils.constants.FilterParamConstants.START_DATE;
 import static com.find.event.utils.constants.FilterParamConstants.STATUS;
@@ -150,6 +155,60 @@ public final class ParamUtils {
         }
 
         return categories;
+    }
+
+    public static Integer extractProximity(Map<String, String> filters) {
+        String proximity = filters.get(PROXIMITY);
+
+        if (StringUtils.isBlank(proximity)) {
+            return null;
+        }
+
+        try {
+            int proximityAsInt = Integer.parseInt(proximity);
+
+            if (proximityAsInt < 0) {
+                throw new FindEventBadRequestException(ErrorCode.INVALID_POSITIVE_VALUE, proximity, PROXIMITY);
+            }
+
+            return proximityAsInt;
+        } catch (NumberFormatException e) {
+            throw new FindEventBadRequestException(ErrorCode.INVALID_NUMERIC_VALUE, proximity, PROXIMITY);
+        }
+    }
+
+    public static Double extractLongitude(Map<String, String> filters) {
+        String longitude = filters.get(LONGITUDE);
+
+        if (StringUtils.isBlank(longitude)) {
+            return null;
+        }
+
+        try {
+            double longitudeAsDouble = Double.parseDouble(longitude);
+            validateLongitude(longitudeAsDouble);
+
+            return longitudeAsDouble;
+        } catch (NumberFormatException e) {
+            throw new FindEventBadRequestException(ErrorCode.INVALID_NUMERIC_VALUE, longitude, LONGITUDE);
+        }
+    }
+
+    public static Double extractLatitude(Map<String, String> filters) {
+        String latitude = filters.get(LATITUDE);
+
+        if (StringUtils.isBlank(latitude)) {
+            return null;
+        }
+
+        try {
+            double latitudeAsDouble = Double.parseDouble(latitude);
+            validateLatitude(latitudeAsDouble);
+
+            return latitudeAsDouble;
+        } catch (NumberFormatException e) {
+            throw new FindEventBadRequestException(ErrorCode.INVALID_NUMERIC_VALUE, latitude, LATITUDE);
+        }
     }
 
     /**

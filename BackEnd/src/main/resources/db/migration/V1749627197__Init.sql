@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS postgis;
+
 CREATE TABLE IF NOT EXISTS users (
   id          SERIAL,
   username    VARCHAR(30) NOT NULL,
@@ -85,7 +87,6 @@ CREATE TABLE events (
   name         VARCHAR(100) NOT NULL,
   description  TEXT NOT NULL,
   type         event_type_enum NOT NULL,
-  location     TEXT NOT NULL,
   start_date   TIMESTAMP WITHOUT TIME ZONE NOT NULL,
   end_date     TIMESTAMP WITHOUT TIME ZONE,
   hyperlink    TEXT,
@@ -116,7 +117,6 @@ CREATE TABLE event_status (
   CONSTRAINT fk_event_requests FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE
 );
 
-
 CREATE TYPE attendance_status_enum AS enum
   (
     'GOING',
@@ -143,4 +143,12 @@ CREATE TABLE reviews (
   CONSTRAINT fk_reviews_users FOREIGN KEY (user_id) REFERENCES users (id),
   CONSTRAINT fk_reviews_events FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE,
   CONSTRAINT ch_reviews_rating CHECK (rating <= 5 AND rating >= 1)
+);
+
+CREATE TABLE locations (
+  event_id    SERIAL,
+  name        TEXT NOT NULL,
+  coordinates GEOGRAPHY(POINT, 4326) NOT NULL, -- latitude/longitude (WGS 84)
+  CONSTRAINT pk_locations PRIMARY KEY (event_id),
+  CONSTRAINT fk_locations_events FOREIGN KEY (event_id) REFERENCES events (id)
 );
