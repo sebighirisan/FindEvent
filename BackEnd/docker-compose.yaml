@@ -1,6 +1,7 @@
 services:
   find-event:
-    image: postgis/postgis:15-3.5
+    build: .
+    image: find-event-with-pgvector
     restart: unless-stopped
     ports:
       - '5436:5432'
