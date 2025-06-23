@@ -8,6 +8,14 @@ spring:
     enabled: true
     baseline-on-migrate: true
 
+  redis:
+    host: localhost  # or 'redis' if you're inside docker-compose network
+    port: 6379
+    # password: if you set one
+
+    cache:
+      type: redis
+
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5436/find-event?currentSchema=public

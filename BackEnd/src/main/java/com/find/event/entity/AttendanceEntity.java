@@ -15,12 +15,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
 @Entity
 @NoArgsConstructor
 @Table(name = "event_attendances")
-public class AttendanceEntity {
+public class AttendanceEntity implements Serializable {
 
     @EmbeddedId
     private UserEventId id;
