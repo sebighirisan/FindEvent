@@ -118,6 +118,18 @@ export const styles = StyleSheet.create({
     paddingBottom: 50,
     backgroundColor: '#001f3f',
   },
+  btnSave:{
+     flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 30,
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderWidth: 1,
+        backgroundColor:'#e1e2e1',
+        borderColor: '#222',
+        position:'absolute'
+  }
 });
 
 export default styles;

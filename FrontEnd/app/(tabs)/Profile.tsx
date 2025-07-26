@@ -49,7 +49,23 @@ import homepagestyle from './homepagestyle/homepage.style';
             source={require('../(tabs)/images/terms-check.png')}
             style={homepagestyle.icon}
           />
-          <Text style={homepagestyle.menuText}>Terms & Policies</Text>
+          <Text style={homepagestyle.menuText}>Terms&Policies</Text>
+        </TouchableOpacity >
+         <TouchableOpacity style={homepagestyle.menuItem}
+          onPress={() => router.push('/CreateEvent')}>
+          <Image
+            source={require('../(tabs)/images/add.png')}
+            style={homepagestyle.icon}
+          />
+          <Text style={homepagestyle.menuText}>Create Event</Text>
+        </TouchableOpacity >
+        <TouchableOpacity style={homepagestyle.menuItem}
+          onPress={() => router.push('/Itinerary')}>
+          <Image
+            source={require('../(tabs)/images/location.png')}
+            style={homepagestyle.icon}
+          />
+          <Text style={homepagestyle.menuText}>Itinerary</Text>
         </TouchableOpacity >
       </View>
        </SafeAreaView>

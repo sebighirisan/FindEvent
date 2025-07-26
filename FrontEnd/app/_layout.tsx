@@ -10,6 +10,8 @@ export default function RootLayout() {
       <Stack.Screen name="Settings" options={{ title: "Settings", headerShown:false }} />
       <Stack.Screen name="LogOut" options={{ title: "Log Out" , headerShown:false}} />
       <Stack.Screen name="History" options={{ title: "History", headerShown:false }} />
+      <Stack.Screen name="CreateEvent" options={{ title: "CreateEvent", headerShown:false }} />
+      <Stack.Screen name="Itinerary" options={{ title: "Itinerary", headerShown:false }} />
     </Stack>
   );
 }

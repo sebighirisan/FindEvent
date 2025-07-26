@@ -12,7 +12,7 @@ export default function Homepage() {
     <Tab.Navigator
       screenOptions={{
         tabBarActiveTintColor:'001f3f',
-        tabBarInactiveTintColor:'gray',
+        tabBarInactiveTintColor:'white',
         tabBarStyle: { backgroundColor:'#001f3f'},
       }}
     >

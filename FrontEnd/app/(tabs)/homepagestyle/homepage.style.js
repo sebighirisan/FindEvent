@@ -1,4 +1,4 @@
-  import { StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
     container2: {
@@ -115,6 +115,22 @@ export const styles = StyleSheet.create({
     height: 20,
     marginRight: 10,
   },
+  searchBar:{
+  backgroundColor: '#fff',
+  borderRadius: 16,
+  paddingVertical: 10,
+  paddingHorizontal: 20,
+  fontSize: 16,
+  color: "black",
+  borderWidth: 1,
+  borderColor: '#ddd',
+  marginHorizontal: 20,
+  marginTop: 20,
+  height: 48,
+  justifyContent:'center',
+  width:'90%',
+  }
+  
 });
 
 export default styles;

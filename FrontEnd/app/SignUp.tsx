@@ -1,6 +1,6 @@
  import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import styles from './styles/auth.styles';
 
@@ -10,12 +10,22 @@ const SignUp = () => {
     lastname: '',
     email: '',
     birthDate: '',
-    password: ''
+    password: '',
+    confirmedpassword: ''
   });
   const RouterNavigation=useRouter();
   return (
     <SafeAreaView style={{flex: 1, backgroundColor:'#001f3f' }}>
       <StatusBar backgroundColor="#4F4F4F"  barStyle='dark-content'/>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={80} // adjust based on your UI
+      >
+        <ScrollView
+          contentContainerStyle={{ paddingBottom: 50 }}
+          keyboardShouldPersistTaps="handled"
+        >
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>
@@ -80,12 +90,12 @@ const SignUp = () => {
                     <TextInput
                       autoCorrect={false}
                       clearButtonMode="while-editing"
-                      onChangeText={password => setForm({ ...form, password })}
+                      onChangeText={confirmedpassword => setForm({ ...form, confirmedpassword })}
                       placeholder="****"
                       placeholderTextColor="#6b7280"
                       style={styles.inputControl}
                       secureTextEntry={true}
-                      value={form.password} />
+                      value={form.confirmedpassword} />
                   </View>
                   <View style={styles.formAction}>
                       <TouchableOpacity
@@ -99,6 +109,8 @@ const SignUp = () => {
                     </View>
       </View>
       </View>
+      </ScrollView>
+       </KeyboardAvoidingView>
       </SafeAreaView>
   )
 }
