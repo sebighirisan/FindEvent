@@ -1,10 +1,10 @@
  import React from 'react'
 import { SafeAreaView, Text, View } from 'react-native'
-import styles from './styles/auth.styles'
+import styles from './styles/UITheme'
  
  export default function LogOut() {
    return (
-     <SafeAreaView style={{ flex: 1, backgroundColor: '#001f3f' }}>
+     <SafeAreaView style={{ flex: 1, backgroundColor: '#101820' }}>
         <View style={styles.header}>
             <Text style={styles.title}>
                 Welcome to <Text style={{ color: '#2D3436' }}>LogOut</Text>

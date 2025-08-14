@@ -11,9 +11,9 @@ export default function Homepage() {
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarActiveTintColor:'001f3f',
+        tabBarActiveTintColor:'black',
         tabBarInactiveTintColor:'white',
-        tabBarStyle: { backgroundColor:'#001f3f'},
+        tabBarStyle: { backgroundColor:'#101820'},
       }}
     >
       <Tab.Screen name="Dashboard" component={Dashboard} options={{ headerShown:false,

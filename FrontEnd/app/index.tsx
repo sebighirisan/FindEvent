@@ -1,7 +1,7 @@
 import { useRouter } from "expo-router";
 import React, { useState } from 'react';
 import { SafeAreaView, StatusBar, Text, TextInput, TouchableOpacity, View } from "react-native";
-import styles from "./styles/auth.styles";
+import styles from "./styles/UITheme";
 
 export default function Index() {
   const [form, setForm] = useState({
@@ -10,7 +10,7 @@ export default function Index() {
   });
   const RouterNavigation=useRouter();
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor:'#001f3f'}}>
+    <SafeAreaView style={{ flex: 1, backgroundColor:'#101820'}}>
       <StatusBar backgroundColor="#2D3436"  barStyle="dark-content"/>
       <View style={styles.container}>
         <View style={styles.header}>
@@ -59,10 +59,24 @@ export default function Index() {
           </View>
           <TouchableOpacity
             onPress={() => {
-             // RouterNavigation.navigate('/Homepage')
+              RouterNavigation.navigate('/ForgetPassword')
             }}>
             <Text style={styles.formLink}>Forgot password?</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+  onPress={() => {
+    RouterNavigation.navigate('/AdminLogin');
+  }}
+  style={{
+    marginTop: 16,
+    backgroundColor: '#2D3436',
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+  }}
+>
+  <Text style={{ color: '#fff', fontWeight: 'bold' }}>Admin Login</Text>
+</TouchableOpacity>
         </View>
       </View>
       <TouchableOpacity

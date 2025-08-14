@@ -1,9 +1,9 @@
  import { SafeAreaView, ScrollView, Text } from 'react-native';
-import styles from './styles/auth.styles';
+import styles from './styles/UITheme';
 
 export default function Settings() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#001f3f' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#101820' }}>
       <ScrollView contentContainerStyle={styles.container2}>
       <Text style={styles.heading}>FindEvent – Terms and Policies</Text>
       <Text style={styles.subheading}>Last updated: June 1, 2025</Text>

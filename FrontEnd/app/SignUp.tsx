@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import styles from './styles/auth.styles';
+import styles from './styles/UITheme';
 
 const SignUp = () => {
   const [form,setForm] = useState({
@@ -15,7 +15,7 @@ const SignUp = () => {
   });
   const RouterNavigation=useRouter();
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor:'#001f3f' }}>
+    <SafeAreaView style={{flex: 1, backgroundColor:'#101820' }}>
       <StatusBar backgroundColor="#4F4F4F"  barStyle='dark-content'/>
       <KeyboardAvoidingView
         style={{ flex: 1 }}

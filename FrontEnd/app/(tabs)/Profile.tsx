@@ -1,13 +1,13 @@
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import homepagestyle from './homepagestyle/homepage.style';
+import homepagestyle from '../styles/UITheme';
 
  
  const Profile = () => {
   const router = useRouter();
    return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#001f3f' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#101820' }}>
         <View style={homepagestyle.header}>
           <Text style={homepagestyle.title}>
              <Text style={{ color: '#2D3436' }}>Your Profile</Text>
