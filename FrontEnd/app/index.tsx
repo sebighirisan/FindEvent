@@ -1,15 +1,21 @@
 import { useRouter } from "expo-router";
 import React, { useState } from 'react';
 import { SafeAreaView, StatusBar, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Provider } from "react-redux";
+import { store } from "../store/index";
 import styles from "./styles/UITheme";
 
 export default function Index() {
+  
   const [form, setForm] = useState({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
-  const RouterNavigation=useRouter();
+
+  const RouterNavigation = useRouter();
+
   return (
+    <Provider store={store}>
     <SafeAreaView style={{ flex: 1, backgroundColor:'#101820'}}>
       <StatusBar backgroundColor="#2D3436"  barStyle="dark-content"/>
       <View style={styles.container}>
@@ -35,63 +41,86 @@ export default function Index() {
               style={styles.inputControl}
               value={form.email} />
           </View>
-          <View style={styles.input}>
-            <Text style={styles.inputLabel}>Password</Text>
-            <TextInput
-              autoCorrect={false}
-              clearButtonMode="while-editing"
-              onChangeText={password => setForm({ ...form, password })}
-              placeholder="****"
-              placeholderTextColor="#6b7280"
-              style={styles.inputControl}
-              secureTextEntry={true}
-              value={form.password} />
-          </View>
-          <View style={styles.formAction}>
+          <View style={styles.form}>
+            <View style={styles.input}>
+              <Text style={styles.inputLabel}>Email address</Text>
+              <TextInput
+                autoCapitalize="none"
+                autoCorrect={false}
+                clearButtonMode="while-editing"
+                keyboardType="email-address"
+                onChangeText={(email) => setForm({ ...form, email })}
+                placeholder="john@example.com"
+                placeholderTextColor="#6b7280"
+                style={styles.inputControl}
+                value={form.email}
+              />
+            </View>
+            <View style={styles.input}>
+              <Text style={styles.inputLabel}>Password</Text>
+              <TextInput
+                autoCorrect={false}
+                clearButtonMode="while-editing"
+                onChangeText={(password) => setForm({ ...form, password })}
+                placeholder="****"
+                placeholderTextColor="#6b7280"
+                style={styles.inputControl}
+                secureTextEntry={true}
+                value={form.password}
+              />
+            </View>
+            <View style={styles.formAction}>
+              <TouchableOpacity
+                onPress={() => {
+                  RouterNavigation.navigate("/Homepage");
+                }}
+              >
+                <View style={styles.btn}>
+                  <Text style={styles.btnText}>Sign in</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
             <TouchableOpacity
               onPress={() => {
-                RouterNavigation.navigate('/Homepage')
-              }}>
-              <View style={styles.btn}>
-                <Text style={styles.btnText}>Sign in</Text>
-              </View>
+                // RouterNavigation.navigate('/Homepage')
+              }}
+            >
+              <Text style={styles.formLink}>Forgot password?</Text>
             </TouchableOpacity>
           </View>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             onPress={() => {
-              RouterNavigation.navigate('/ForgetPassword')
+              RouterNavigation.navigate("/ForgetPassword")
             }}>
             <Text style={styles.formLink}>Forgot password?</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-  onPress={() => {
-    RouterNavigation.navigate('/AdminLogin');
-  }}
-  style={{
-    marginTop: 16,
-    backgroundColor: '#2D3436',
-    paddingVertical: 10,
-    borderRadius: 8,
-    alignItems: 'center',
-  }}
->
-  <Text style={{ color: '#fff', fontWeight: 'bold' }}>Admin Login</Text>
-</TouchableOpacity>
+          </TouchableOpacity> */}
+          {/* <TouchableOpacity
+            onPress={() => {
+              RouterNavigation.navigate('/AdminLogin');
+            }}
+            style={{
+              marginTop: 16,
+              backgroundColor: '#2D3436',
+              paddingVertical: 10,
+              borderRadius: 8,
+              alignItems: 'center',
+            }}
+          >
+            <Text style={{ color: '#fff', fontWeight: 'bold' }}>Admin Login</Text>
+          </TouchableOpacity> */}
         </View>
-      </View>
-      <TouchableOpacity
-        onPress={() => {
-          RouterNavigation.navigate('/SignUp')
-
-        }}>
-        <Text style={styles.formFooter}>
-          Don't have an account?{' '}
-          <Text style={{ textDecorationLine: 'underline' }}>Sign up</Text>
-        </Text>
-        
-      </TouchableOpacity>
-     
+        <TouchableOpacity
+          onPress={() => {
+            RouterNavigation.navigate("/SignUp");
+          }}
+        >
+          <Text style={styles.formFooter}>
+            Don&apos;t have an account?&nbsp;
+            <Text style={{ textDecorationLine: "underline" }}>Sign up</Text>
+          </Text>
+        </TouchableOpacity>
+      </View> 
     </SafeAreaView>
-    
+    </Provider>
   );
 }

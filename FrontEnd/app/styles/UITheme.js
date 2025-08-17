@@ -370,4 +370,3 @@ const appStyles = StyleSheet.create({
 });
 
 export default appStyles;        // default import
-export const styles = appStyles; // named import (compat)
