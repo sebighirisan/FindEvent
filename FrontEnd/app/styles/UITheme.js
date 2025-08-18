@@ -79,6 +79,7 @@ const appStyles = StyleSheet.create({
     color: "#e1e2e1",
     textAlign: "center",
     textDecorationLine: "underline",
+    paddingBottom: 16
   },
   formFooter: {
     paddingVertical: 24,

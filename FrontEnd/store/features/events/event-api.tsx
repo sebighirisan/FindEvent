@@ -1,10 +1,9 @@
 import { Login, Signup } from '@/model/auth.model';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import Config from "react-native-config";
 
-export const authApi = createApi({
+export const eventApi = createApi({
   reducerPath: 'auth-api',
-  baseQuery: fetchBaseQuery({ baseUrl: Config.API_URL }),
+  baseQuery: fetchBaseQuery({ baseUrl: 'asffsa'}),
   endpoints: (builder) => ({
     login: builder.mutation({
       query: (credentials: Login) => ({
@@ -23,4 +22,4 @@ export const authApi = createApi({
   }),
 });
 
-export const { useLoginMutation, useRegisterMutation } = authApi;
+export const { useLoginMutation, useRegisterMutation } = eventApi;
