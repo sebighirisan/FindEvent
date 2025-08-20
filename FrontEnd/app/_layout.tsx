@@ -17,6 +17,7 @@ export default function RootLayout() {
       <Stack.Screen name="AdminLogin" options={{ title: "AdminLogin", headerShown:false }} />
       <Stack.Screen name="DashboardAdmin" options={{ title: "DashboardAdmin", headerShown:false }} />
       <Stack.Screen name="AdminVerifyEvent" options={{ title: "AdminVerifyEvent", headerShown:false }} />
+      
     </Stack>
   );
 }

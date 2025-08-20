@@ -1,5 +1,4 @@
-// app/(tabs)/Favorites.tsx
-import { router, useFocusEffect } from "expo-router";
+import { router, Stack, useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
   Alert,
@@ -10,17 +9,28 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { FavoriteEvent, getFavorites, removeFavorite } from ".././utils/favorites";
+import {
+  clearItinerary,
+  getItinerary,
+  ItineraryItem,
+  removeFromItinerary,
+} from ".././utils/itinerary";
 import styles from "./styles/UITheme";
 
-export default function Favorites() {
-  const [items, setItems] = useState<FavoriteEvent[]>([]);
+export default function Itinerary() {
+  const [items, setItems] = useState<ItineraryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const list = await getFavorites();
+    const list = await getItinerary();
+    // Optional: sort by start date if present
+    list.sort((a, b) => {
+      const ta = a.startAt ? new Date(a.startAt).getTime() : 0;
+      const tb = b.startAt ? new Date(b.startAt).getTime() : 0;
+      return ta - tb;
+    });
     setItems(list);
     setLoading(false);
   }, []);
@@ -37,7 +47,7 @@ export default function Favorites() {
     setRefreshing(false);
   }, [load]);
 
-  const openEvent = (ev: FavoriteEvent) => {
+  const openEvent = (ev: ItineraryItem) => {
     router.push({
       pathname: "/EventPage",
       params: {
@@ -52,17 +62,36 @@ export default function Favorites() {
     });
   };
 
-  const confirmRemove = (ev: FavoriteEvent) => {
+  const confirmRemove = (ev: ItineraryItem) => {
     Alert.alert(
-      "Remove favorite",
-      `Remove "${ev.title}" from Favorites?`,
+      "Remove from itinerary",
+      `Remove "${ev.title}" from your plan?`,
       [
         { text: "Cancel", style: "cancel" },
         {
           text: "Remove",
           style: "destructive",
           onPress: async () => {
-            await removeFavorite(ev.id);
+            await removeFromItinerary(ev.id);
+            load();
+          },
+        },
+      ]
+    );
+  };
+
+  const confirmClearAll = () => {
+    if (items.length === 0) return;
+    Alert.alert(
+      "Clear itinerary",
+      "Remove all events from your itinerary?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Clear",
+          style: "destructive",
+          onPress: async () => {
+            await clearItinerary();
             load();
           },
         },
@@ -72,18 +101,25 @@ export default function Favorites() {
 
   return (
     <SafeAreaView style={styles.rootDark}>
-      {/* Minimal header with title */}
+       {/* Hide the default route header */}
+      <Stack.Screen options={{ headerShown: false }} />
+      {/* Minimal header */}
       <View style={styles.fixedHeaderWrap}>
         <View
           style={[
             styles.headerDark,
-            { paddingHorizontal: 16, alignItems: "center", justifyContent: "center" },
+            { paddingHorizontal: 16, alignItems: "center", justifyContent: "space-between" },
           ]}
         >
-          <Text style={styles.titleDark}>Favorites</Text>
+          <Text style={styles.titleDark}>Itinerary</Text>
           <Text style={{ color: "#9CA3AF", marginTop: 4 }}>
-            {loading ? "Loading…" : `${items.length} saved ${items.length === 1 ? "event" : "events"}`}
+            {loading ? "Loading…" : `${items.length} planned ${items.length === 1 ? "event" : "events"}`}
           </Text>
+
+          {/* Optional: show a small clear action under title (comment out if you don't want it) */}
+          {/* <TouchableOpacity onPress={confirmClearAll} activeOpacity={0.85} style={[styles.eventSecondaryBtn, { marginTop: 8 }]}>
+            <Text style={styles.eventSecondaryBtnText}>Clear</Text>
+          </TouchableOpacity> */}
         </View>
       </View>
 
@@ -100,9 +136,9 @@ export default function Favorites() {
           </Text>
         ) : items.length === 0 ? (
           <View style={styles.emptyWrap}>
-            <Text style={styles.emptyText}>No favorite events yet.</Text>
+            <Text style={styles.emptyText}>Your itinerary is empty.</Text>
             <Text style={[styles.eventSubtitle, { marginTop: 6, textAlign: "center" }]}>
-              Tap “Add to Favorites” on an event to see it here.
+              Tap “Add to Itinerary” on an event to plan your schedule.
             </Text>
           </View>
         ) : (
@@ -110,7 +146,6 @@ export default function Favorites() {
             const niceDate = ev.startAt ? new Date(ev.startAt).toLocaleString() : undefined;
             return (
               <View key={ev.id} style={styles.eventCard}>
-                {/* Tappable header (title/location) */}
                 <TouchableOpacity activeOpacity={0.85} onPress={() => openEvent(ev)}>
                   <Text style={styles.eventTitle} numberOfLines={1}>
                     {ev.title}
@@ -122,7 +157,7 @@ export default function Favorites() {
                   )}
                 </TouchableOpacity>
 
-                {/* Subtle chips row (category/date/price) */}
+                {/* Chips for quick glance */}
                 <View style={[styles.eventChipsRow, { marginTop: 10, marginBottom: 0 }]}>
                   {!!ev.category && (
                     <View style={styles.eventChip}>

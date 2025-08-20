@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { SafeAreaView, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import styles from './styles/UITheme';
+import styles from './(tabs)/styles/UITheme';
 
 const AdminLogin = () => {
   const [form, setForm] = useState({

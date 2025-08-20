@@ -1,3 +1,5 @@
+// app/(tabs)/Dashboard.tsx
+import { router } from "expo-router";
 import React, { useMemo, useState } from "react";
 import {
   ScrollView,
@@ -7,7 +9,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import styles from "../styles/UITheme";
+import styles from "./styles/UITheme";
 
 const categories = ["Party", "HouseParty", "Clubs", "Tour Guides", "Outdoors"];
 const locations = [
@@ -75,6 +77,18 @@ const Dashboard = () => {
       return byCat && byLoc;
     });
   }, [selectedCategory, selectedLocation]);
+
+  // Navigate to /EventPage with params
+  const goToEvent = (item: { id: string; title: string; location: string }) => {
+    router.push({
+      pathname: "/EventPage", // since EventPage.tsx is in (tabs)
+      params: {
+        id: item.id,
+        title: item.title,
+        location: item.location,
+      },
+    });
+  };
 
   return (
     <SafeAreaView style={styles.rootDark}>
@@ -149,7 +163,7 @@ const Dashboard = () => {
       <ScrollView contentContainerStyle={styles.scrollBody} showsVerticalScrollIndicator={false}>
         {/* Featured */}
         <View style={styles.sectionLabelWrap}>
-          <Text style={styles.sectionLabelText}>Future Events</Text>
+          <Text style={styles.sectionLabelText}>Featured Events</Text>
         </View>
 
         <ScrollView
@@ -158,9 +172,14 @@ const Dashboard = () => {
           contentContainerStyle={styles.featuredRowContainer}
         >
           {featuredEvents.map((item) => (
-            <View key={item.id} style={styles.featuredCard}>
+            <TouchableOpacity
+              key={item.id}
+              style={styles.featuredCard}
+              onPress={() => goToEvent(item)}
+              activeOpacity={0.85}
+            >
               <View style={styles.featuredBadge}>
-                <Text style={styles.featuredBadgeText}>Future</Text>
+                <Text style={styles.featuredBadgeText}>Featured</Text>
               </View>
 
               <View>
@@ -171,7 +190,7 @@ const Dashboard = () => {
                   {item.location}
                 </Text>
               </View>
-            </View>
+            </TouchableOpacity>
           ))}
         </ScrollView>
 
@@ -182,12 +201,17 @@ const Dashboard = () => {
 
         <View style={styles.listWrap}>
           {filteredMoreEvents.map((item) => (
-            <View key={item.id} style={styles.eventCard}>
+            <TouchableOpacity
+              key={item.id}
+              style={styles.eventCard}
+              onPress={() => goToEvent(item)}
+              activeOpacity={0.85}
+            >
               <Text style={styles.eventTitle} numberOfLines={1}>
                 {item.title}
               </Text>
               <Text style={styles.eventSubtitle}>{item.location}</Text>
-            </View>
+            </TouchableOpacity>
           ))}
 
           {filteredMoreEvents.length === 0 && (

@@ -11,7 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import styles from "./styles/UITheme"; // from app/ → ../styles
+import styles from "./(tabs)/styles/UITheme"; // from app/ → ../styles
 
 const CreateEvent = () => {
   const [form, setForm] = useState({

@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import homepagestyle from '../styles/UITheme';
+import homepagestyle from './styles/UITheme';
 
  
  const Profile = () => {
@@ -34,14 +34,6 @@ import homepagestyle from '../styles/UITheme';
             style={homepagestyle.icon}
           />
           <Text style={homepagestyle.menuText}>Your History</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={homepagestyle.menuItem}
-          onPress={() => router.push('/LogOut')}>
-          <Image
-            source={require('../(tabs)/images/user-logout.png')}
-            style={homepagestyle.icon}
-          />
-          <Text style={homepagestyle.menuText}>Log Out</Text>
         </TouchableOpacity>
         <TouchableOpacity style={homepagestyle.menuItem}
           onPress={() => router.push('/Terms')}>
