@@ -28,13 +28,13 @@ const Profile = () => {
     <SafeAreaView style={{ flex: 1, backgroundColor: "#101820" }}>
       <View style={homepagestyle.header}>
         <Text style={homepagestyle.title}>
-          <Text style={{ color: "#2D3436" }}>Your Profile</Text>
+          <Text style={{ color: "white" }}>Your Profile</Text>
         </Text>
         <Image
           source={require("./images/user-pen.png")}
-          style={{ width: 70, height: 70, marginTop: 20 }}
+          style={{ width: 70, height: 70, marginTop: 20, tintColor: "white" }}
         />
-        <Text style={{ marginTop: 10, fontWeight: "bold" }}>
+        <Text style={{ marginTop: 10, fontWeight: "bold", color: "white" }}>
           Username: {username}
         </Text>
       </View>

@@ -1,4 +1,4 @@
-import { useRouter } from "expo-router";
+import { usePathname, useRouter } from "expo-router";
 import { ReactNode, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/index";
@@ -9,20 +9,16 @@ interface AuthGuardProps {
 
 export default function AuthGuard({ children }: AuthGuardProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const exp = useSelector((state: RootState) => state.auth.exp);
 
   useEffect(() => {
-    if (!exp) {
-      router.replace("/AdminLogin");
-      return;
-    }
+    if (!pathname) return; // 👈 wait until router mounted
 
-    const isExpired = exp * 1000 < Date.now();
-
-    if (isExpired) {
-      router.replace("/AdminLogin");
+    if (!exp || exp * 1000 < Date.now()) {
+      router.replace("/");
     }
-  }, [exp, router]);
+  }, [exp, router, pathname]);
 
   // If token is valid, render children
   return <>{children}</>;
