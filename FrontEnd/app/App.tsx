@@ -13,7 +13,7 @@ import {
   View
 } from "react-native";
 import { useDispatch } from "react-redux";
-import styles from "./styles/UITheme";
+import styles from "../app/(tabs)/styles/UITheme";
 
 export default function App() {
   const [form, setForm] = useState({
