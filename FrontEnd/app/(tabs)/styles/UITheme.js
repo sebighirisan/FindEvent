@@ -154,7 +154,7 @@ const appStyles = StyleSheet.create({
   borderColor: "#263241",
   color: "#f8f9f9ff",
   },
-  
+
   btnSaveText: {
   fontSize: 16,
   fontWeight: "600",
@@ -364,6 +364,136 @@ const appStyles = StyleSheet.create({
     borderColor: "#263241",
     marginBottom: 10,
   },
+  // --- Add below your existing appStyles keys ---
+
+  /** EventPage – chips */
+  eventChipsRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    marginTop: 14,
+    marginBottom: 18,
+  },
+  eventChip: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 999,
+    backgroundColor: "#1F2A3A",
+    borderWidth: 1,
+    borderColor: "#334155",
+  },
+  eventChipText: {
+    color: "#E5E7EB",
+    fontSize: 12,
+    fontWeight: "700",
+    letterSpacing: 0.3,
+  },
+  eventChipMuted: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 999,
+    backgroundColor: "#101820",
+    borderWidth: 1,
+    borderColor: "#2A3749",
+  },
+  eventChipMutedText: {
+    color: "#9CA3AF",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+
+  /** EventPage – content cards (reuse generic card/cardTitle if you like) */
+  eventPanel: {
+    backgroundColor: "#182333",
+    borderRadius: 14,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: "#263241",
+    marginTop: 12,
+  },
+  eventPanelTitle: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "800",
+  },
+
+  /** EventPage – details rows */
+  eventDetailRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#223044",
+    marginTop: 6,
+  },
+  eventDetailRowLast: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 12,
+    marginTop: 6,
+  },
+  eventDetailLabel: {
+    color: "#9CA3AF",
+    fontSize: 14,
+  },
+  eventDetailValue: {
+    color: "#E5E7EB",
+    fontSize: 14,
+    fontWeight: "600",
+    maxWidth: "60%",
+    textAlign: "right",
+  },
+
+  /** EventPage – actions */
+  eventActionsRow: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 20,
+    marginBottom: 12,
+  },
+  eventPrimaryBtn: {
+    flex: 1,
+    backgroundColor: "#182333",
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#263241",
+  },
+  eventPrimaryBtnText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "700",
+  },
+  eventSecondaryBtn: {
+    flex: 1,
+    backgroundColor: "#101820",
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#263241",
+  },
+  eventSecondaryBtnText: {
+    color: "#E5E7EB",
+    fontSize: 16,
+    fontWeight: "700",
+  },
+  eventOutlineFullBtn: {
+    backgroundColor: "transparent",
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#334155",
+  },
+  eventOutlineFullBtnText: {
+    color: "#E5E7EB",
+    fontSize: 16,
+    fontWeight: "700",
+  },
+
+  
   eventTitle: { color: "#fff", fontSize: 16, fontWeight: "700", marginBottom: 4 },
   eventSubtitle: { color: "#9CA3AF" },
   emptyWrap: { padding: 24, alignItems: "center" },

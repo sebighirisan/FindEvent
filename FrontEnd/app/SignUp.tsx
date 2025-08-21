@@ -14,9 +14,9 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from "react-redux";
-import styles from "./styles/UITheme";
+import styles from './(tabs)/styles/UITheme';
 
 const SignUp = () => {
   const [form, setForm] = useState({

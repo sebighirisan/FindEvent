@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import styles from './styles/UITheme';
+import styles from './(tabs)/styles/UITheme';
 
 
  
