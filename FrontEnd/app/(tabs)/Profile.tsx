@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/index";
-import homepagestyle from "./styles/UITheme";
+import homepagestyle from "../styles/UITheme";
 
 const Profile = () => {
   const router = useRouter();
@@ -20,7 +20,7 @@ const Profile = () => {
 
   const handleLogout = () => {
     dispatch(logout());
-    router.replace("/AdminLogin");
+    router.replace("/Login");
   };
 
   return (
@@ -30,7 +30,7 @@ const Profile = () => {
           <Text style={{ color: "white" }}>Your Profile</Text>
         </Text>
         <Image
-          source={require("./images/user-pen.png")}
+          source={require("../images/user-pen.png")}
           style={{ width: 70, height: 70, marginTop: 20, tintColor: "white" }}
         />
         <Text style={{ marginTop: 10, fontWeight: "bold", color: "white" }}>
@@ -43,7 +43,7 @@ const Profile = () => {
           onPress={() => router.push("/Settings")}
         >
           <Image
-            source={require("./images/settings-sliders.png")}
+            source={require("../images/settings-sliders.png")}
             style={[homepagestyle.icon, { tintColor: "white" }]}
           />
           <Text style={homepagestyle.menuText}>Settings</Text>
@@ -53,14 +53,14 @@ const Profile = () => {
           onPress={() => router.push("/History")}
         >
           <Image
-            source={require("./images/time-past.png")}
+            source={require("../images/time-past.png")}
             style={[homepagestyle.icon, { tintColor: "white" }]}
           />
           <Text style={homepagestyle.menuText}>Your History</Text>
         </TouchableOpacity>
         <TouchableOpacity style={homepagestyle.menuItem} onPress={handleLogout}>
           <Image
-            source={require("./images/user-logout.png")}
+            source={require("../images/user-logout.png")}
             style={[homepagestyle.icon, { tintColor: "white" }]}
           />
           <Text style={homepagestyle.menuText}>Log Out</Text>
@@ -70,7 +70,7 @@ const Profile = () => {
           onPress={() => router.push("/Terms")}
         >
           <Image
-            source={require("./images/terms-check.png")}
+            source={require("../images/terms-check.png")}
             style={[homepagestyle.icon, { tintColor: "white" }]}
           />
           <Text style={homepagestyle.menuText}>Terms & Policies</Text>
@@ -80,7 +80,7 @@ const Profile = () => {
           onPress={() => router.push("/CreateEvent")}
         >
           <Image
-            source={require("./images/add.png")}
+            source={require("../images/add.png")}
             style={[homepagestyle.icon, { tintColor: "white" }]}
           />
           <Text style={homepagestyle.menuText}>Create Event</Text>
@@ -90,7 +90,7 @@ const Profile = () => {
           onPress={() => router.push("/Itinerary")}
         >
           <Image
-            source={require("./images/location.png")}
+            source={require("../images/location.png")}
             style={[homepagestyle.icon, { tintColor: "white" }]}
           />
           <Text style={homepagestyle.menuText}>Itinerary</Text>

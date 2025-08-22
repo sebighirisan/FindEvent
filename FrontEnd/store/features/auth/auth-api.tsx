@@ -1,4 +1,4 @@
-import { Login, Signup } from "@/model/auth.model";
+import { LoginCredentials, Signup } from "@/model/auth.model";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const authApi = createApi({
@@ -6,11 +6,11 @@ export const authApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: process.env.EXPO_PUBLIC_API_URL }),
   endpoints: (builder) => ({
     login: builder.mutation({
-      query: (credentials: Login) => ({
+      query: (credentials: LoginCredentials) => ({
         url: "auth/login",
         method: "POST",
         body: credentials,
-        responseHandler: 'text'
+        responseHandler: "text",
       }),
     }),
     register: builder.mutation({
@@ -18,7 +18,7 @@ export const authApi = createApi({
         url: "auth/signup",
         method: "POST",
         body: userInfo,
-        responseHandler: "text"
+        responseHandler: "text",
       }),
     }),
   }),

@@ -1,7 +1,7 @@
 import { useRouter } from "expo-router";
 import React, { useMemo } from "react";
 import { FlatList, SafeAreaView, Text, TouchableOpacity, View } from "react-native";
-import styles from "./(tabs)/styles/UITheme";
+import styles from "./styles/UITheme";
 
 type EventItem = {
   id: string;

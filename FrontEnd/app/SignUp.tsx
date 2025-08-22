@@ -16,7 +16,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from "react-redux";
-import styles from './(tabs)/styles/UITheme';
+import styles from './styles/UITheme';
 
 const SignUp = () => {
   const [form, setForm] = useState({
@@ -34,6 +34,7 @@ const SignUp = () => {
   const dispatch = useDispatch();
 
   const handleSignup = async () => {
+
     const signupCredentials: Signup = {
       username: form.email,
       password: form.password,
@@ -51,7 +52,7 @@ const SignUp = () => {
 
       // await saveToken(token);
 
-      RouterNavigation.replace("/Homepage");
+      RouterNavigation.replace("/Dashboard");
     } catch (err) {
       console.error("Signup failed:", err);
     }

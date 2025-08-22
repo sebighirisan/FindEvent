@@ -11,7 +11,7 @@ import {
   View,
 } from "react-native";
 import { FavoriteEvent, getFavorites, removeFavorite } from ".././utils/favorites";
-import styles from "./styles/UITheme";
+import styles from "../styles/UITheme";
 
 export default function Favorites() {
   const [items, setItems] = useState<FavoriteEvent[]>([]);

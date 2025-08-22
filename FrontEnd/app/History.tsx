@@ -9,11 +9,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import style from "./(tabs)/styles/UITheme";
+import style from "./styles/UITheme";
 import {
   getJoinedEvents,
   JoinedEvent,
-  removeJoinedEvent
+  removeJoinedEvent,
 } from "./utils/joined";
 
 const History = () => {
@@ -62,24 +62,18 @@ const History = () => {
   };
 
   const confirmRemove = (ev: JoinedEvent) => {
-    Alert.alert(
-      "Remove",
-      `Remove "${ev.title}" from History?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Remove",
-          style: "destructive",
-          onPress: async () => {
-            await removeJoinedEvent(ev.id);
-            load();
-          },
+    Alert.alert("Remove", `Remove "${ev.title}" from History?`, [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Remove",
+        style: "destructive",
+        onPress: async () => {
+          await removeJoinedEvent(ev.id);
+          load();
         },
-      ]
-    );
+      },
+    ]);
   };
-
-  
 
   return (
     <SafeAreaView style={style.rootDark}>
@@ -95,38 +89,56 @@ const History = () => {
           <Text style={{ color: "#9CA3AF", marginTop: 4 }}>
             {loading ? "Loading…" : `${items.length} joined`}
           </Text>
-
-         
-        
         </View>
       </View>
 
       <ScrollView
-        contentContainerStyle={[style.listWrap, { paddingTop: 16, paddingBottom: 32 }]}
+        contentContainerStyle={[
+          style.listWrap,
+          { paddingTop: 16, paddingBottom: 32 },
+        ]}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#fff" />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#fff"
+          />
         }
       >
         {loading ? (
-          <Text style={{ color: "#9CA3AF", textAlign: "center", marginTop: 16 }}>
+          <Text
+            style={{ color: "#9CA3AF", textAlign: "center", marginTop: 16 }}
+          >
             Loading…
           </Text>
         ) : items.length === 0 ? (
           <View style={style.emptyWrap}>
             <Text style={style.emptyText}>No joined events yet.</Text>
-            <Text style={[style.eventSubtitle, { marginTop: 6, textAlign: "center" }]}>
+            <Text
+              style={[
+                style.eventSubtitle,
+                { marginTop: 6, textAlign: "center" },
+              ]}
+            >
               Tap “Join Event” on an event — it will show up here.
             </Text>
           </View>
         ) : (
           items.map((ev) => {
-            const niceDate = ev.startAt ? new Date(ev.startAt).toLocaleString() : undefined;
-            const joinedWhen = ev.joinedAt ? new Date(ev.joinedAt).toLocaleString() : undefined;
+            const niceDate = ev.startAt
+              ? new Date(ev.startAt).toLocaleString()
+              : undefined;
+            const joinedWhen = ev.joinedAt
+              ? new Date(ev.joinedAt).toLocaleString()
+              : undefined;
 
             return (
               <View key={ev.id} style={style.eventCard}>
-                <TouchableOpacity activeOpacity={0.85} onPress={() => openEvent(ev)}>
+                <TouchableOpacity
+                  activeOpacity={0.85}
+                  onPress={() => openEvent(ev)}
+                >
                   <Text style={style.eventTitle} numberOfLines={1}>
                     {ev.title}
                   </Text>
@@ -156,7 +168,9 @@ const History = () => {
                   )}
                   {!!joinedWhen && (
                     <View style={style.eventChipMuted}>
-                      <Text style={style.eventChipMutedText}>Joined {joinedWhen}</Text>
+                      <Text style={style.eventChipMutedText}>
+                        Joined {joinedWhen}
+                      </Text>
                     </View>
                   )}
                 </View>

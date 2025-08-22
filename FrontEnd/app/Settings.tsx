@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import styles from "./(tabs)/styles/UITheme";
+import styles from "./styles/UITheme";
 
 export default function Settings() {
   const [darkMode, setDarkMode] = useState(true);

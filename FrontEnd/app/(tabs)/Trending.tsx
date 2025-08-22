@@ -1,6 +1,6 @@
  import React from 'react'
 import { SafeAreaView, StyleSheet, Text, View } from 'react-native'
-import homepagestyle from './styles/UITheme'
+import homepagestyle from '../styles/UITheme'
  
  const Trending = () => {
    return (
@@ -14,6 +14,6 @@ import homepagestyle from './styles/UITheme'
    )
  }
  
- export default Trending
+ export default Trending;
  
- const styles = StyleSheet.create({})
+ const styles = StyleSheet.create({});

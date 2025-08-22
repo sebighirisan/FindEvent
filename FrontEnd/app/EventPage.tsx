@@ -12,9 +12,9 @@ import {
 import styles from "./styles/UITheme";
 
 // storage helpers
-import { addFavorite } from ".././utils/favorites";
-import { addToItinerary } from ".././utils/itinerary";
-import { addJoinedEvent } from ".././utils/joined";
+import { addFavorite } from "./utils/favorites";
+import { addToItinerary } from "./utils/itinerary";
+import { addJoinedEvent } from "./utils/joined";
 
 export default function EventPage() {
   const { id, title, location, category, startAt, price, description } =

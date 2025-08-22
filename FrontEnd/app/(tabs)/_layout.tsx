@@ -1,73 +1,64 @@
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Tabs } from "expo-router";
 import { Image } from "react-native";
-import Dashboard from "./(tabs)/Dashboard";
-import Favorites from "./(tabs)/Favorites";
-import Profile from "./(tabs)/Profile";
-import Trending from "./(tabs)/Trending";
 
-const Tab = createBottomTabNavigator();
-
-export default function Homepage() {
+export default function TabsLayout() {
   return (
-    <Tab.Navigator
+    <Tabs
       screenOptions={{
         tabBarActiveTintColor: "#FAFA33",
         tabBarInactiveTintColor: "white",
         tabBarStyle: { backgroundColor: "#101820" },
+        headerShown: false,
       }}
     >
-      <Tab.Screen
+      <Tabs.Screen
         name="Dashboard"
-        component={Dashboard}
         options={{
-          headerShown: false,
+          title: "Dashboard",
           tabBarIcon: ({ color }) => (
             <Image
-              source={require("./(tabs)/images/dashboard-monitor.png")}
+              source={require("../images/dashboard-monitor.png")}
               style={{ width: 24, height: 24, tintColor: color }}
             />
           ),
         }}
       />
-      <Tab.Screen
+      <Tabs.Screen
         name="Favorites"
-        component={Favorites}
         options={{
-          headerShown: false,
+          title: "Favorites",
           tabBarIcon: ({ color }) => (
             <Image
-              source={require("./(tabs)/images/heart.png")}
+              source={require("../images/heart.png")}
               style={{ width: 24, height: 24, tintColor: color }}
             />
           ),
         }}
       />
-      <Tab.Screen
+      <Tabs.Screen
         name="Trending"
-        component={Trending}
         options={{
-          headerShown: false,
+          title: "Trending",
           tabBarIcon: ({ color }) => (
             <Image
-              source={require("./(tabs)/images/arrow-trend-up.png")}
+              source={require("../images/arrow-trend-up.png")}
               style={{ width: 24, height: 24, tintColor: color }}
             />
           ),
         }}
       />
-      <Tab.Screen
+      <Tabs.Screen
         name="Profile"
-        component={Profile}
         options={{
-          headerShown: false,
+          title: "Profile",
           tabBarIcon: ({ color }) => (
             <Image
-              source={require("./(tabs)/images/user-pen.png")}
+              source={require("../images/user-pen.png")}
               style={{ width: 24, height: 24, tintColor: color }}
             />
           ),
         }}
       />
-    </Tab.Navigator>
+    </Tabs>
   );
 }

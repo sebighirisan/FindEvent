@@ -9,7 +9,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import styles from "./styles/UITheme";
+import styles from "../styles/UITheme";
 
 const categories = ["Party", "HouseParty", "Clubs", "Tour Guides", "Outdoors"];
 const locations = [

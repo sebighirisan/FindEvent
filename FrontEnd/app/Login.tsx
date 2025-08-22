@@ -1,4 +1,4 @@
-import { JwtPayload, Login } from "@/model/auth.model";
+import { JwtPayload, LoginCredentials } from "@/model/auth.model";
 import { useLoginMutation } from "@/store/features/auth/auth-api";
 import { setUser } from "@/store/features/auth/auth-slice";
 import { useRouter } from "expo-router";
@@ -13,9 +13,9 @@ import {
   View
 } from "react-native";
 import { useDispatch } from "react-redux";
-import styles from "../app/(tabs)/styles/UITheme";
+import styles from "./styles/UITheme";
 
-export default function App() {
+const Login = () => {
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -27,7 +27,9 @@ export default function App() {
   const [login, { error }] = useLoginMutation();
 
   const handleSignIn = async () => {
-    const loginCredentials: Login = {
+    console.log(error);
+
+    const loginCredentials: LoginCredentials = {
       username: form.email,
       password: form.password,
     };
@@ -41,7 +43,7 @@ export default function App() {
     
       // await saveToken(token);
 
-      RouterNavigation.replace("/Homepage");
+      RouterNavigation.replace("/Dashboard");
     } catch (err) {
       console.error("Login failed:", err);
     }
@@ -104,26 +106,6 @@ export default function App() {
             <Text style={styles.formLink}>Forgot password?</Text>
           </TouchableOpacity>
         </View>
-        {/* <TouchableOpacity
-            onPress={() => {
-              RouterNavigation.navigate("/ForgetPassword")
-            }}>
-            <Text style={styles.formLink}>Forgot password?</Text>
-          </TouchableOpacity> */}
-        {/* <TouchableOpacity
-            onPress={() => {
-              RouterNavigation.navigate('/AdminLogin');
-            }}
-            style={{
-              marginTop: 16,
-              backgroundColor: '#2D3436',
-              paddingVertical: 10,
-              borderRadius: 8,
-              alignItems: 'center',
-            }}
-          >
-            <Text style={{ color: '#fff', fontWeight: 'bold' }}>Admin Login</Text>
-          </TouchableOpacity> */}
       </View>
       <TouchableOpacity
         onPress={() => {
@@ -138,3 +120,5 @@ export default function App() {
     </SafeAreaView>
   );
 }
+
+export default Login;
