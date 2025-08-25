@@ -76,4 +76,24 @@ public interface EventService {
      * @return a list of {@link EventCategoryWithTypesDTO} objects representing available event categories and their types
      */
     List<EventCategoryWithTypesDTO> getEventCategoriesWithTypes();
+
+    /**
+     * Retrieves a list of up to 10 trending events.
+     *
+     * @return a list of {@link EventDTO} objects representing the trending events
+     */
+    PaginatedModel<EventDTO> getTrendingEvents(Integer pageSize, Integer pageNumber);
+
+    byte[] getEventImage(Long eventId);
+
+    // TODO: Add Javadoc
+    PaginatedModel<EventDTO> getPersonalEvents(Integer pageSize,
+                                               Integer pageNumber,
+                                               AttendanceStatusEnum attendanceStatus);
+
+    // TODO: Add Javadoc
+    List<EventDTO> getUpcomingEvents();
+
+    // TODO: Add JavaDoc
+    PaginatedModel<EventDTO> getEventsSuggestions(Integer pageSize, Integer pageNumber);
 }

@@ -1,25 +1,59 @@
-import { Login, Signup } from '@/model/auth.model';
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { AttendanceStatusEnum, Event } from "@/model/event.model";
+import { PaginatedResponseModel } from "@/model/paging.model";
+import { RootState } from "@/store";
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const eventApi = createApi({
-  reducerPath: 'auth-api',
-  baseQuery: fetchBaseQuery({ baseUrl: 'asffsa'}),
+  reducerPath: "event-api",
+  baseQuery: fetchBaseQuery({
+    baseUrl: `${process.env.EXPO_PUBLIC_API_URL}/event`,
+    prepareHeaders: (headers, { getState }) => {
+      const token = (getState() as RootState).auth.token;
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
+      return headers;
+    },
+  }),
   endpoints: (builder) => ({
-    login: builder.mutation({
-      query: (credentials: Login) => ({
-        url: 'auth/login',
-        method: 'POST',
-        body: credentials,
+    fetchPersonalizedEvents: builder.query<
+      PaginatedResponseModel<Event>,
+      { page: number; size: number; attendanceStatus: AttendanceStatusEnum }
+    >({
+      query: ({ page, size, attendanceStatus}) => ({
+        url: "me",
+        method: "GET",
+        params: {
+          pageNumber: page,
+          pageSize: size,
+          attendanceStatus
+        }
       }),
     }),
-    register: builder.mutation({
-      query: (userInfo: Signup) => ({
-        url: 'auth/signup',
-        method: 'POST',
-        body: userInfo,
+    fetchTrendingEvents: builder.query<
+      PaginatedResponseModel<Event>,
+      { page: number; size: number }
+    >({
+      query: ({ page, size }) => ({
+        url: "trending",
+        method: "GET",
+        params: {
+          pageNumber: page,
+          pageSize: size,
+        },
+      }),
+    }),
+    fetchUpcomingEvents: builder.query<Event[], void>({
+      query: () => ({
+        url: "upcoming",
+        method: "GET",
       }),
     }),
   }),
 });
 
-export const { useLoginMutation, useRegisterMutation } = eventApi;
+export const {
+  useFetchPersonalizedEventsQuery,
+  useFetchTrendingEventsQuery,
+  useFetchUpcomingEventsQuery,
+} = eventApi;

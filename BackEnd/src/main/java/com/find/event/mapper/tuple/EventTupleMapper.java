@@ -46,7 +46,7 @@ public final class EventTupleMapper {
                 .startDate(extractLocalDateTimeValueFromTuple(tuple, "startDate"))
                 .endDate(extractLocalDateTimeValueFromTuple(tuple, "endDate"))
                 .hyperlink(tuple.get("hyperlink", String.class))
-                .splashImage(extractByteArrayFromTuple(tuple, "splashImage"))
+                // .splashImage(extractByteArrayFromTuple(tuple, "splashImage"))
                 .publisher(publisher)
                 .status(eventStatusEnum)
                 .location(location)

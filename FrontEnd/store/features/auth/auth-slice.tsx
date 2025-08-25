@@ -5,13 +5,14 @@ interface AuthState {
   username: string | null;
   roles: string[];
   exp: number | null;
+  token: string | null;
 }
 
-// 2️⃣ Provide the typed initial state
 const initialState: AuthState = {
   username: null,
   roles: [],
   exp: null,
+  token: null,
 };
 
 export const authSlice = createSlice({
@@ -22,12 +23,14 @@ export const authSlice = createSlice({
       state.username = payload.sub;
       state.roles = payload.roles;
       state.exp = payload.exp;
+      state.token = payload.token;
     },
     logout: (state) => {
       Object.assign(state, {
         username: null,
         roles: [],
         exp: null,
+        token: null,
       });
     },
   },

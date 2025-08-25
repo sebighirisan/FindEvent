@@ -36,6 +36,7 @@ public enum ErrorCode {
 
     // Unauthorized
     UNAUTHORIZED("You are not authorized to perform this action"),
+    JWT_EXPIRED("Your authorization token is expired. Please login again to generate a new one"),
 
     // Conflict
     USERNAME_ALREADY_TAKEN("Username %s already taken"),

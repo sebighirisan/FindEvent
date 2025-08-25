@@ -21,7 +21,7 @@ import java.io.Serializable;
 @Setter
 @Entity
 @NoArgsConstructor
-@Table(name = "event_attendances")
+@Table(name = "attendances")
 public class AttendanceEntity implements Serializable {
 
     @EmbeddedId

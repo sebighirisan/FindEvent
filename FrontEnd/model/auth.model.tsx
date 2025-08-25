@@ -15,4 +15,5 @@ export interface JwtPayload {
   sub: string; // username or user ID
   roles: string[]; // roles array
   exp: number; // expiration timestamp
+  token: string;
 }

@@ -24,6 +24,7 @@ public enum EventTypeEnum {
 
     // Performance & Visual Arts
     THEATER_PERFORMANCE("Theater Performance", EventCategoryEnum.PERFORMANCE_AND_VISUAL_ARTS),
+    SONG_CONTEST("Song Contest", EventCategoryEnum.PERFORMANCE_AND_VISUAL_ARTS),
     STREET_PERFORMANCE("Street Performance", EventCategoryEnum.PERFORMANCE_AND_VISUAL_ARTS),
     FILM_SCREENING("Film Screening", EventCategoryEnum.PERFORMANCE_AND_VISUAL_ARTS),
     ART_EXPO("Art Expo", EventCategoryEnum.PERFORMANCE_AND_VISUAL_ARTS),

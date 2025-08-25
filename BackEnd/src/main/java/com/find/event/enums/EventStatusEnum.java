@@ -6,7 +6,6 @@ import com.find.event.exception.FindEventBadRequestException;
 import java.util.Arrays;
 
 public enum EventStatusEnum {
-    DRAFT,
     PENDING,
     APPROVED,
     DECLINED;

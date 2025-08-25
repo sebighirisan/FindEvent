@@ -87,4 +87,37 @@ public class EventController {
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @GetMapping("/{id}/image")
+    public ResponseEntity<byte[]> getEventImage(@PathVariable Long id) {
+        byte[] image = eventService.getEventImage(id);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_JPEG) // or IMAGE_PNG depending on your case
+                .body(image);
+    }
+
+    @GetMapping("/trending")
+    public ResponseEntity<PaginatedModel<EventDTO>> getTrendingEvents(@RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                                                            @RequestParam(name = "pageNumber", defaultValue = "0") Integer pageNumber) {
+        return new ResponseEntity<>(eventService.getTrendingEvents(pageSize, pageNumber), HttpStatus.OK);
+    }
+
+    @GetMapping("/upcoming")
+    public ResponseEntity<List<EventDTO>> getUpcomingEvents() {
+        return new ResponseEntity<>(eventService.getUpcomingEvents(), HttpStatus.OK);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<PaginatedModel<EventDTO>> getPersonalEvents(@RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                                                                      @RequestParam(name = "pageNumber", defaultValue = "0") Integer pageNumber,
+                                                                      @RequestParam(name = "attendanceStatus") AttendanceStatusEnum attendanceStatus) {
+        return new ResponseEntity<>(eventService.getPersonalEvents(pageSize, pageNumber, attendanceStatus), HttpStatus.OK);
+    }
+
+    @GetMapping("/suggestions")
+    public ResponseEntity<PaginatedModel<EventDTO>> getEventsSuggestions(@RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                                                                         @RequestParam(name = "pageNumber", defaultValue = "0") Integer pageNumber) {
+        return new ResponseEntity<>(eventService.getEventsSuggestions(pageSize, pageNumber), HttpStatus.OK);
+    }
 }

@@ -29,7 +29,7 @@ public class EventStatusEntity {
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private EventStatusEnum status = EventStatusEnum.DRAFT;
+    private EventStatusEnum status = EventStatusEnum.PENDING;
 
     @OneToOne
     @MapsId

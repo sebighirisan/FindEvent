@@ -11,11 +11,6 @@ import {
 } from "react-native";
 import styles from "./styles/UITheme";
 
-// storage helpers
-import { addFavorite } from "./utils/favorites";
-import { addToItinerary } from "./utils/itinerary";
-import { addJoinedEvent } from "./utils/joined";
-
 export default function EventPage() {
   const { id, title, location, category, startAt, price, description } =
     useLocalSearchParams<{
@@ -34,15 +29,15 @@ export default function EventPage() {
 
   const onFavorite = async () => {
     try {
-      await addFavorite({
-        id: String(id ?? Date.now()),
-        title: String(title ?? "Event"),
-        location: location ? String(location) : undefined,
-        category: category ? String(category) : undefined,
-        startAt: startAt ? String(startAt) : undefined,
-        price: price ? String(price) : undefined,
-        description: description ? String(description) : undefined,
-      });
+      // await addFavorite({
+      //   id: String(id ?? Date.now()),
+      //   title: String(title ?? "Event"),
+      //   location: location ? String(location) : undefined,
+      //   category: category ? String(category) : undefined,
+      //   startAt: startAt ? String(startAt) : undefined,
+      //   price: price ? String(price) : undefined,
+      //   description: description ? String(description) : undefined,
+      // });
       Alert.alert("Saved", "Added to Favorites.");
     } catch {
       Alert.alert("Error", "Could not save to favorites.");
@@ -51,15 +46,15 @@ export default function EventPage() {
 
   const onAddItinerary = async () => {
     try {
-      await addToItinerary({
-        id: String(id ?? Date.now()),
-        title: String(title ?? "Event"),
-        location: location ? String(location) : undefined,
-        category: category ? String(category) : undefined,
-        startAt: startAt ? String(startAt) : undefined,
-        price: price ? String(price) : undefined,
-        description: description ? String(description) : undefined,
-      });
+      // await addToItinerary({
+      //   id: String(id ?? Date.now()),
+      //   title: String(title ?? "Event"),
+      //   location: location ? String(location) : undefined,
+      //   category: category ? String(category) : undefined,
+      //   startAt: startAt ? String(startAt) : undefined,
+      //   price: price ? String(price) : undefined,
+      //   description: description ? String(description) : undefined,
+      // });
       Alert.alert("Itinerary", "Added to your itinerary.");
     } catch {
       Alert.alert("Error", "Could not add to itinerary.");
@@ -68,15 +63,15 @@ export default function EventPage() {
 
   const onJoin = async () => {
   try {
-    await addJoinedEvent({
-      id: String(id ?? Date.now()),
-      title: String(title ?? "Event"),
-      location: location ? String(location) : undefined,
-      category: category ? String(category) : undefined,
-      startAt: startAt ? String(startAt) : undefined,
-      price: price ? String(price) : undefined,
-      description: description ? String(description) : undefined,
-    });
+    // await addJoinedEvent({
+    //   id: String(id ?? Date.now()),
+    //   title: String(title ?? "Event"),
+    //   location: location ? String(location) : undefined,
+    //   category: category ? String(category) : undefined,
+    //   startAt: startAt ? String(startAt) : undefined,
+    //   price: price ? String(price) : undefined,
+    //   description: description ? String(description) : undefined,
+    // });
     Alert.alert("Joined", `You're in for: ${title ?? "this event"} 🎉`);
   } catch {
     Alert.alert("Error", "Could not join the event.");

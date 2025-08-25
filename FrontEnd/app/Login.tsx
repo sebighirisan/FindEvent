@@ -1,16 +1,20 @@
 import { JwtPayload, LoginCredentials } from "@/model/auth.model";
+import { ErrorResponse } from "@/model/error.model";
 import { useLoginMutation } from "@/store/features/auth/auth-api";
 import { setUser } from "@/store/features/auth/auth-slice";
+import { saveToken } from "@/utils/secure-storage";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { jwtDecode } from "jwt-decode";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
+  Pressable,
   SafeAreaView,
   StatusBar,
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import { useDispatch } from "react-redux";
 import styles from "./styles/UITheme";
@@ -21,14 +25,28 @@ const Login = () => {
     password: "",
   });
 
+  const [buttonChecked, setButtonChecked] = useState(false);
+
   const dispatch = useDispatch();
 
-  // TODO: Use error
+  const [errorMessage, setErrorMessage] = useState("");
   const [login, { error }] = useLoginMutation();
 
-  const handleSignIn = async () => {
-    console.log(error);
+  useEffect(() => {
+    if (error && "data" in error) {
+      const errorResponse = JSON.parse(error.data as string) as ErrorResponse;
 
+      setErrorMessage(errorResponse.message);
+    }
+  }, [error]);
+
+  const RouterNavigation = useRouter();
+
+  const toggleButtonChecked = () => {
+    setButtonChecked((buttonChecked) => !buttonChecked);
+  };
+
+  const handleSignIn = useCallback(async () => {
     const loginCredentials: LoginCredentials = {
       username: form.email,
       password: form.password,
@@ -37,19 +55,29 @@ const Login = () => {
     try {
       const token = await login(loginCredentials).unwrap();
 
-      const decodedToken: JwtPayload = jwtDecode<JwtPayload>(token);
+      const decodedToken: JwtPayload = {
+        ...jwtDecode<JwtPayload>(token),
+        token,
+      };
 
       dispatch(setUser(decodedToken));
-    
-      // await saveToken(token);
 
-      RouterNavigation.replace("/Dashboard");
+      if (buttonChecked) {
+        await saveToken(token);
+      }
+
+      RouterNavigation.navigate("/Dashboard");
     } catch (err) {
-      console.error("Login failed:", err);
+      console.log("Login failed: ", err);
     }
-  };
-
-  const RouterNavigation = useRouter();
+  }, [
+    RouterNavigation,
+    dispatch,
+    form.email,
+    form.password,
+    login,
+    buttonChecked,
+  ]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#101820" }}>
@@ -92,12 +120,39 @@ const Login = () => {
             />
           </View>
           <View style={styles.formAction}>
+            <Pressable
+              onPress={toggleButtonChecked}
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                paddingBottom: 8,
+              }}
+            >
+              <Ionicons
+                name={buttonChecked ? "checkbox-outline" : "square-outline"}
+                size={24}
+                color="white"
+              />
+              <Text
+                style={{
+                  ...styles.inputLabel,
+                  paddingStart: 4,
+                }}
+              >
+                Keep me signed in
+              </Text>
+            </Pressable>
             <TouchableOpacity onPress={handleSignIn}>
               <View style={styles.btn}>
                 <Text style={styles.btnText}>Sign in</Text>
               </View>
             </TouchableOpacity>
           </View>
+          {!!errorMessage && (
+            <View>
+              <Text style={styles.errorMessage}>{errorMessage}</Text>
+            </View>
+          )}
           <TouchableOpacity
             onPress={() => {
               // RouterNavigation.navigate('/Homepage')
@@ -119,6 +174,6 @@ const Login = () => {
       </TouchableOpacity>
     </SafeAreaView>
   );
-}
+};
 
 export default Login;

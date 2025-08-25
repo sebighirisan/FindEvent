@@ -79,7 +79,7 @@ const appStyles = StyleSheet.create({
     color: "#e1e2e1",
     textAlign: "center",
     textDecorationLine: "underline",
-    paddingBottom: 16
+    paddingBottom: 16,
   },
   formFooter: {
     paddingVertical: 24,
@@ -140,26 +140,25 @@ const appStyles = StyleSheet.create({
     fontSize: 18,
     lineHeight: 26,
     fontWeight: "600",
-    
   },
   btnSave: {
-  flexDirection: "row",
-  alignItems: "center",
-  justifyContent: "center",
-  borderRadius: 12,
-  paddingVertical: 14,
-  paddingHorizontal: 24,
-  backgroundColor: "#182333",
-  borderWidth: 1,
-  borderColor: "#263241",
-  color: "#f8f9f9ff",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    backgroundColor: "#182333",
+    borderWidth: 1,
+    borderColor: "#263241",
+    color: "#f8f9f9ff",
   },
 
   btnSaveText: {
-  fontSize: 16,
-  fontWeight: "600",
-  color: "#FFFFFF", // White text for Save button
-},
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#FFFFFF", // White text for Save button
+  },
 
   /** Dashboard (dark) */
   rootDark: { flex: 1, backgroundColor: "#101820" },
@@ -313,7 +312,11 @@ const appStyles = StyleSheet.create({
   },
 
   /** Featured row + cards */
-  featuredRowContainer: { paddingHorizontal: 16, paddingVertical: 12 },
+  featuredRowContainer: { 
+    paddingHorizontal: 16, 
+    paddingVertical: 12,
+    gap: 12
+  },
   featuredCard: {
     width: Math.round(width * 0.82),
     minHeight: 118,
@@ -493,11 +496,23 @@ const appStyles = StyleSheet.create({
     fontWeight: "700",
   },
 
-  
-  eventTitle: { color: "#fff", fontSize: 16, fontWeight: "700", marginBottom: 4 },
+  eventTitle: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "700",
+    marginBottom: 4,
+  },
   eventSubtitle: { color: "#9CA3AF" },
   emptyWrap: { padding: 24, alignItems: "center" },
   emptyText: { color: "#9CA3AF" },
+
+  errorMessage: {
+    paddingBottom: 8,
+    fontSize: 16,
+    color: "#EE4B2B",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
 });
 
-export default appStyles;        // default import
+export default appStyles; // default import

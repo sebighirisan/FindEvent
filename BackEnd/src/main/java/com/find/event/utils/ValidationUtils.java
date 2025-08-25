@@ -188,11 +188,6 @@ public final class ValidationUtils {
 
         if (ObjectUtils.nullSafeEquals(authenticatedUser.getId(), publisherId)
                 || EventStatusEnum.APPROVED.equals(eventStatusEnum)) {
-            return;
-        }
-
-        if (EventStatusEnum.DRAFT.equals(eventStatusEnum) || !authenticatedUser.isAdmin()) {
-            throw new FindEventUnauthorizedException(ErrorCode.UNAUTHORIZED);
         }
     }
 

@@ -25,8 +25,7 @@ CREATE TABLE IF NOT EXISTS roles (
 INSERT INTO roles (id, name)
 VALUES
   (1, 'USER'),
-  (2, 'ADMIN'),
-  (3, 'SUPERUSER');
+  (2, 'ADMIN');
 
 CREATE TABLE users_roles (
   user_id INTEGER NOT NULL,
@@ -42,6 +41,7 @@ CREATE TYPE event_type_enum AS enum
     'OUTDOOR_CONCERT',
     'LOCAL_CONCERT',
     'MUSIC_FESTIVAL',
+    'SONG_CONTEST',
     'ORCHESTRA_PERFORMANCE',
 
     -- Sport & Fitness
@@ -103,7 +103,6 @@ CREATE TABLE events (
 
 CREATE TYPE event_status_enum AS enum
   (
-    'DRAFT',
     'PENDING',
     'APPROVED',
     'DECLINED'
@@ -121,8 +120,7 @@ CREATE TABLE event_status (
 CREATE TYPE attendance_status_enum AS enum
   (
     'GOING',
-    'INTERESTED',
-    'NOT_INTERESTED'
+    'INTERESTED'
   );
 CREATE CAST (CHARACTER VARYING AS attendance_status_enum) WITH inout AS implicit;
 
@@ -147,7 +145,7 @@ CREATE TABLE reviews (
 );
 
 CREATE TABLE locations (
-  event_id    SERIAL,
+  event_id    INTEGER,
   name        TEXT NOT NULL,
   coordinates GEOGRAPHY(POINT, 4326) NOT NULL, -- latitude/longitude (WGS 84)
   CONSTRAINT pk_locations PRIMARY KEY (event_id),

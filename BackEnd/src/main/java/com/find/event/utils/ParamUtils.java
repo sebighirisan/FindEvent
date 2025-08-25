@@ -100,20 +100,16 @@ public final class ParamUtils {
      * taking into account the user's permissions.
      *
      * @param filters     the map containing filter parameters
-     * @param publisherId the ID of the publisher for permission validation
      * @return the trimmed status string, or {@code null} if not provided
      */
-    public static String extractStatus(Map<String, String> filters, Integer publisherId) {
+    public static String extractStatus(Map<String, String> filters) {
         String status = filters.get(STATUS);
 
         if (StringUtils.isBlank(status)) {
             return null;
         }
 
-        String trimmedStatus = status.trim();
-        validateEventStatus(EventStatusEnum.of(trimmedStatus), publisherId);
-
-        return trimmedStatus;
+        return status.trim();
     }
 
     /**

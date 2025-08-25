@@ -24,6 +24,9 @@ import com.find.event.repository.nativequeries.EventRepository;
 import com.find.event.service.EventService;
 import com.find.event.utils.ParamUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,7 +73,6 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
 
     private static final Map<EventStatusEnum, Set<EventStatusEnum>> statusTransitions = Map.of(
-            DRAFT, Set.of(PENDING),
             PENDING, Set.of(APPROVED, DECLINED),
             APPROVED, Set.of(DECLINED),
             DECLINED, Set.of(APPROVED)
@@ -94,7 +96,7 @@ public class EventServiceImpl implements EventService {
         processedFilters.put(END_DATE, extractEndDate(filters));
         processedFilters.put(PUBLISHER_ID, publisherId);
         processedFilters.put(NAME, name);
-        processedFilters.put(STATUS, extractStatus(filters, publisherId));
+        processedFilters.put(STATUS, extractStatus(filters));
         processedFilters.put(CATEGORIES, extractCategories(filters));
         processedFilters.put(PROXIMITY, extractProximity(filters));
         processedFilters.put(LONGITUDE, extractLongitude(filters));
@@ -247,5 +249,69 @@ public class EventServiceImpl implements EventService {
                                 .build()
                 )
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PaginatedModel<EventDTO> getTrendingEvents(Integer pageSize, Integer pageNumber) {
+        Page<EventEntity> trendingEventsPaginated = eventJpaRepository.findTrendingEvents(PageRequest.of(0, 10));
+
+        List<EventDTO> items = trendingEventsPaginated.getContent()
+                .stream().map(eventMapper::eventEntityToEventDTO).toList();
+
+        return new PaginatedModel<>(
+                buildPagingMetadata(pageNumber, pageSize, trendingEventsPaginated.getTotalElements()),
+                items
+        );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public byte[] getEventImage(Long eventId) {
+        return eventJpaRepository.findById(eventId)
+                .map(EventEntity::getSplashImage)
+                .orElseThrow(() -> new FindEventNotFoundException(ErrorCode.EVENT_NOT_FOUND, eventId));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PaginatedModel<EventDTO> getPersonalEvents(Integer pageSize,
+                                                      Integer pageNumber,
+                                                      AttendanceStatusEnum attendanceStatus) {
+        Long authenticatedUserId = getAuthenticatedUser().getId();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+
+        Page<EventEntity> personalEventsPaginated = switch (attendanceStatus) {
+            case GOING -> eventJpaRepository.findGoingEvents(authenticatedUserId, pageable);
+            case INTERESTED -> eventJpaRepository.findInterestedEvents(authenticatedUserId, pageable);
+            default -> throw new FindEventBadRequestException(ErrorCode.INVALID_FILTER_PARAM, attendanceStatus, "attendance status");
+        };
+
+        List<EventDTO> items = personalEventsPaginated.getContent()
+                .stream().map(eventMapper::eventEntityToEventDTO).toList();
+
+        return new PaginatedModel<>(
+                buildPagingMetadata(pageNumber, pageSize, personalEventsPaginated.getTotalElements()),
+                items
+        );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<EventDTO> getUpcomingEvents() {
+        Pageable pageable = PageRequest.of(0, 10);
+
+        return eventJpaRepository
+                .findUpcomingEvents(pageable)
+                .stream()
+                .map(eventMapper::eventEntityToEventDTO)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PaginatedModel<EventDTO> getEventsSuggestions(Integer pageSize, Integer pageNumber) {
+        return null;
     }
 }

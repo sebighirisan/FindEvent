@@ -28,7 +28,7 @@ import java.util.Base64;
 public interface EventMapper {
     @Mapping(target = "status", source = "eventStatus.status")
     @Mapping(target = "type", source = "type.name")
-    @Mapping(target = "splashImage", qualifiedByName = "convertSplashImageToBase64")
+//    @Mapping(target = "splashImage", qualifiedByName = "convertSplashImageToBase64")
     EventDTO eventEntityToEventDTO(EventEntity eventEntity);
 
     @IgnoreIdMapping
@@ -45,14 +45,14 @@ public interface EventMapper {
     @Mapping(target = "location", qualifiedByName = "updateLocationEntity")
     void updateEvent(@MappingTarget EventEntity event, EventRequestDTO updatedEvent);
 
-    @Named("convertSplashImageToBase64")
-    default String convertSplashImageToBase64(byte[] splashImage) {
-        if (splashImage == null) {
-            return null;
-        }
-
-        return new String(Base64.getEncoder().encode(splashImage));
-    }
+//    @Named("convertSplashImageToBase64")
+//    default String convertSplashImageToBase64(byte[] splashImage) {
+//        if (splashImage == null) {
+//            return null;
+//        }
+//
+//        return new String(Base64.getEncoder().encode(splashImage));
+//    }
 
     @Named("convertMultipartToByteArray")
     default byte[] convertMultipartToByteArray(MultipartFile splashImage) {

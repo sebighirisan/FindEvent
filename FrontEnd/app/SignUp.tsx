@@ -1,9 +1,10 @@
 import { JwtPayload, Signup } from "@/model/auth.model";
+import { ErrorResponse } from "@/model/error.model";
 import { useRegisterMutation } from "@/store/features/auth/auth-api";
 import { setUser } from "@/store/features/auth/auth-slice";
 import { useRouter } from "expo-router";
 import { jwtDecode } from "jwt-decode";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -14,9 +15,9 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch } from "react-redux";
-import styles from './styles/UITheme';
+import styles from "./styles/UITheme";
 
 const SignUp = () => {
   const [form, setForm] = useState({
@@ -28,13 +29,21 @@ const SignUp = () => {
     confirmedpassword: "",
   });
 
+  const [errorMessage, setErrorMessage] = useState("");
   const [signup, { error }] = useRegisterMutation();
 
   const RouterNavigation = useRouter();
   const dispatch = useDispatch();
 
-  const handleSignup = async () => {
+  useEffect(() => {
+    if (error && "data" in error) {
+      const errorResponse = JSON.parse(error.data as string) as ErrorResponse;
 
+      setErrorMessage(errorResponse.message);
+    }
+  }, [error]);
+
+  const handleSignup = useCallback(async () => {
     const signupCredentials: Signup = {
       username: form.email,
       password: form.password,
@@ -46,17 +55,18 @@ const SignUp = () => {
     try {
       const token = await signup(signupCredentials).unwrap();
 
-      const decodedToken: JwtPayload = jwtDecode<JwtPayload>(token);
+      const decodedToken: JwtPayload = {
+        ...jwtDecode<JwtPayload>(token),
+        token
+      };
 
       dispatch(setUser(decodedToken));
 
-      // await saveToken(token);
-
       RouterNavigation.replace("/Dashboard");
     } catch (err) {
-      console.error("Signup failed:", err);
+      console.log("Signup Failed ", err);
     }
-  };
+  }, [RouterNavigation, dispatch, form, signup]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#101820" }}>
@@ -161,6 +171,11 @@ const SignUp = () => {
                   value={form.confirmedpassword}
                 />
               </View>
+              {!!errorMessage && (
+                <View>
+                  <Text style={styles.errorMessage}>{errorMessage}</Text>
+                </View>
+              )}
               <View style={styles.formAction}>
                 <TouchableOpacity onPress={handleSignup}>
                   <View style={styles.btn}>
@@ -170,7 +185,7 @@ const SignUp = () => {
               </View>
               <TouchableOpacity
                 onPress={() => {
-                  RouterNavigation.replace("/");
+                  RouterNavigation.replace("/Login");
                 }}
               >
                 <Text style={styles.formLink}>Already registered? Login.</Text>

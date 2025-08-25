@@ -1,3 +1,4 @@
+import { Event } from "@/model/event.model";
 import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
@@ -6,28 +7,23 @@ import {
   SafeAreaView,
   ScrollView,
   Text,
-  TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import style from "./styles/UITheme";
-import {
-  getJoinedEvents,
-  JoinedEvent,
-  removeJoinedEvent,
-} from "./utils/joined";
 
 const History = () => {
-  const [items, setItems] = useState<JoinedEvent[]>([]);
+  const [items, setItems] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const list = await getJoinedEvents();
+    const list: Event[] = [];
+
     // Optional: newest first
     list.sort((a, b) => {
-      const ta = a.joinedAt ? new Date(a.joinedAt).getTime() : 0;
-      const tb = b.joinedAt ? new Date(b.joinedAt).getTime() : 0;
+      const ta = a.startDate ? new Date(a.startDate).getTime() : 0;
+      const tb = b.startDate ? new Date(b.startDate).getTime() : 0;
       return tb - ta;
     });
     setItems(list);
@@ -46,29 +42,29 @@ const History = () => {
     setRefreshing(false);
   }, [load]);
 
-  const openEvent = (ev: JoinedEvent) => {
+  const openEvent = (ev: Event) => {
     router.push({
       pathname: "/EventPage",
-      params: {
-        id: ev.id,
-        title: ev.title,
-        location: ev.location,
-        category: ev.category,
-        startAt: ev.startAt,
-        price: ev.price,
-        description: ev.description,
-      },
+      // params: {
+      //   id: ev.id,
+      //   title: ev.title,
+      //   location: ev.location,
+      //   category: ev.category,
+      //   startAt: ev.startAt,
+      //   price: ev.price,
+      //   description: ev.description,
+      // },
     });
   };
 
-  const confirmRemove = (ev: JoinedEvent) => {
-    Alert.alert("Remove", `Remove "${ev.title}" from History?`, [
+  const confirmRemove = (ev: Event) => {
+    Alert.alert("Remove", `Remove "${ev.name}" from History?`, [
       { text: "Cancel", style: "cancel" },
       {
         text: "Remove",
         style: "destructive",
         onPress: async () => {
-          await removeJoinedEvent(ev.id);
+          // Remove event from history
           load();
         },
       },
@@ -125,77 +121,78 @@ const History = () => {
             </Text>
           </View>
         ) : (
-          items.map((ev) => {
-            const niceDate = ev.startAt
-              ? new Date(ev.startAt).toLocaleString()
-              : undefined;
-            const joinedWhen = ev.joinedAt
-              ? new Date(ev.joinedAt).toLocaleString()
-              : undefined;
+          // items.map((ev) => {
+          //   const niceDate = ev.startAt
+          //     ? new Date(ev.startAt).toLocaleString()
+          //     : undefined;
+          //   const joinedWhen = ev.joinedAt
+          //     ? new Date(ev.joinedAt).toLocaleString()
+          //     : undefined;
 
-            return (
-              <View key={ev.id} style={style.eventCard}>
-                <TouchableOpacity
-                  activeOpacity={0.85}
-                  onPress={() => openEvent(ev)}
-                >
-                  <Text style={style.eventTitle} numberOfLines={1}>
-                    {ev.title}
-                  </Text>
-                  {!!ev.location && (
-                    <Text style={style.eventSubtitle} numberOfLines={1}>
-                      {ev.location}
-                    </Text>
-                  )}
-                </TouchableOpacity>
+          //   return (
+          //     <View key={ev.id} style={style.eventCard}>
+          //       <TouchableOpacity
+          //         activeOpacity={0.85}
+          //         onPress={() => openEvent(ev)}
+          //       >
+          //         <Text style={style.eventTitle} numberOfLines={1}>
+          //           {ev.title}
+          //         </Text>
+          //         {!!ev.location && (
+          //           <Text style={style.eventSubtitle} numberOfLines={1}>
+          //             {ev.location}
+          //           </Text>
+          //         )}
+          //       </TouchableOpacity>
 
-                {/* Chips */}
-                <View style={[style.eventChipsRow, { marginTop: 10 }]}>
-                  {!!ev.category && (
-                    <View style={style.eventChip}>
-                      <Text style={style.eventChipText}>{ev.category}</Text>
-                    </View>
-                  )}
-                  {!!niceDate && (
-                    <View style={style.eventChip}>
-                      <Text style={style.eventChipText}>{niceDate}</Text>
-                    </View>
-                  )}
-                  {!!ev.price && (
-                    <View style={style.eventChip}>
-                      <Text style={style.eventChipText}>{ev.price}</Text>
-                    </View>
-                  )}
-                  {!!joinedWhen && (
-                    <View style={style.eventChipMuted}>
-                      <Text style={style.eventChipMutedText}>
-                        Joined {joinedWhen}
-                      </Text>
-                    </View>
-                  )}
-                </View>
+          //       {/* Chips */}
+          //       <View style={[style.eventChipsRow, { marginTop: 10 }]}>
+          //         {!!ev.category && (
+          //           <View style={style.eventChip}>
+          //             <Text style={style.eventChipText}>{ev.category}</Text>
+          //           </View>
+          //         )}
+          //         {!!niceDate && (
+          //           <View style={style.eventChip}>
+          //             <Text style={style.eventChipText}>{niceDate}</Text>
+          //           </View>
+          //         )}
+          //         {!!ev.price && (
+          //           <View style={style.eventChip}>
+          //             <Text style={style.eventChipText}>{ev.price}</Text>
+          //           </View>
+          //         )}
+          //         {!!joinedWhen && (
+          //           <View style={style.eventChipMuted}>
+          //             <Text style={style.eventChipMutedText}>
+          //               Joined {joinedWhen}
+          //             </Text>
+          //           </View>
+          //         )}
+          //       </View>
 
-                {/* Actions */}
-                <View style={{ flexDirection: "row", gap: 10, marginTop: 12 }}>
-                  <TouchableOpacity
-                    activeOpacity={0.85}
-                    style={style.eventPrimaryBtn}
-                    onPress={() => openEvent(ev)}
-                  >
-                    <Text style={style.eventPrimaryBtnText}>Open</Text>
-                  </TouchableOpacity>
+          //       {/* Actions */}
+          //       <View style={{ flexDirection: "row", gap: 10, marginTop: 12 }}>
+          //         <TouchableOpacity
+          //           activeOpacity={0.85}
+          //           style={style.eventPrimaryBtn}
+          //           onPress={() => openEvent(ev)}
+          //         >
+          //           <Text style={style.eventPrimaryBtnText}>Open</Text>
+          //         </TouchableOpacity>
 
-                  <TouchableOpacity
-                    activeOpacity={0.85}
-                    style={style.eventSecondaryBtn}
-                    onPress={() => confirmRemove(ev)}
-                  >
-                    <Text style={style.eventSecondaryBtnText}>Remove</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            );
-          })
+          //         <TouchableOpacity
+          //           activeOpacity={0.85}
+          //           style={style.eventSecondaryBtn}
+          //           onPress={() => confirmRemove(ev)}
+          //         >
+          //           <Text style={style.eventSecondaryBtnText}>Remove</Text>
+          //         </TouchableOpacity>
+          //       </View>
+          //     </View>
+          //   );
+          // })
+          <></>
         )}
       </ScrollView>
     </SafeAreaView>

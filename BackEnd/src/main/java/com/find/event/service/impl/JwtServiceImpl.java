@@ -1,8 +1,11 @@
 package com.find.event.service.impl;
 
 import com.find.event.entity.UserEntity;
+import com.find.event.exception.ErrorCode;
+import com.find.event.exception.FindEventUnauthenticatedException;
 import com.find.event.security.JwtProperties;
 import com.find.event.service.JwtService;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
@@ -34,12 +37,16 @@ public class JwtServiceImpl implements JwtService {
     }
 
     public String extractUsername(String token) {
-        return Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .getSubject();
+        try {
+            return Jwts.parser()
+                    .verifyWith(getSigningKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload()
+                    .getSubject();
+        } catch(ExpiredJwtException ex) {
+            throw new FindEventUnauthenticatedException(ErrorCode.JWT_EXPIRED.getMessage());
+        }
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {

@@ -85,16 +85,6 @@ const Profile = () => {
           />
           <Text style={homepagestyle.menuText}>Create Event</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={homepagestyle.menuItem}
-          onPress={() => router.push("/Itinerary")}
-        >
-          <Image
-            source={require("../images/location.png")}
-            style={[homepagestyle.icon, { tintColor: "white" }]}
-          />
-          <Text style={homepagestyle.menuText}>Itinerary</Text>
-        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );

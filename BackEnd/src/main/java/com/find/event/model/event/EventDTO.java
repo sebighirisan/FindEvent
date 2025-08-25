@@ -13,12 +13,13 @@ import java.time.LocalDateTime;
 @Setter
 @Builder
 public class EventDTO {
+    private Long id;
     private String name;
     private String description;
     private UserSummaryDTO publisher;
     private String type;
     private String hyperlink;
-    private String splashImage;
+    // private String splashImage;
     private LocationDTO location;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
