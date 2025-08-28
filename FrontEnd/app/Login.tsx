@@ -20,33 +20,59 @@ import { useDispatch } from "react-redux";
 import styles from "./styles/UITheme";
 
 const Login = () => {
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-  });
-
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [buttonChecked, setButtonChecked] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const dispatch = useDispatch();
-
-  const [errorMessage, setErrorMessage] = useState("");
+  const RouterNavigation = useRouter();
   const [login, { error }] = useLoginMutation();
 
-  useEffect(() => {
-    if (error && "data" in error) {
-      const errorResponse = JSON.parse(error.data as string) as ErrorResponse;
+  // --- Validare locală (câmpuri goale / format email / min lungime parolă)
+  const validate = () => {
+    const newErrors: { email?: string; password?: string } = {};
+    if (!form.email.trim()) newErrors.email = "Emailul este obligatoriu.";
+    else if (!/\S+@\S+\.\S+/.test(form.email)) newErrors.email = "Introdu un email valid.";
+    if (!form.password.trim()) newErrors.password = "Parola este obligatorie.";
+    else if (form.password.length < 6) newErrors.password = "Parola trebuie să aibă minim 6 caractere.";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
-      setErrorMessage(errorResponse.message);
+  // --- Mapare erori backend -> mesaj „Parola e greșită.”
+  useEffect(() => {
+    if (!error) return;
+
+    const anyErr = error as any;
+    const status = anyErr?.status;
+    let serverMsg = "";
+
+    const data = anyErr?.data;
+    if (typeof data === "string") {
+      try {
+        serverMsg = (JSON.parse(data) as ErrorResponse).message ?? data;
+      } catch {
+        serverMsg = data;
+      }
+    } else if (data && typeof data === "object" && "message" in data) {
+      serverMsg = (data as ErrorResponse).message ?? "";
+    }
+
+    // Dacă e 401/403 sau mesaj tipic de credențiale invalide -> arătăm „Parola e greșită.”
+    if (status === 401 || status === 403 || /invalid|bad credentials/i.test(serverMsg)) {
+      setErrors((prev) => ({ ...prev, password: "Parola e greșită." }));
+      setErrorMessage(""); // nu mai arătăm banner generic
+    } else {
+      setErrorMessage(serverMsg || "A apărut o eroare la autentificare.");
     }
   }, [error]);
 
-  const RouterNavigation = useRouter();
-
-  const toggleButtonChecked = () => {
-    setButtonChecked((buttonChecked) => !buttonChecked);
-  };
+  const toggleButtonChecked = () => setButtonChecked((v) => !v);
 
   const handleSignIn = useCallback(async () => {
+    if (!validate()) return;
+
     const loginCredentials: LoginCredentials = {
       username: form.email,
       password: form.password,
@@ -54,30 +80,17 @@ const Login = () => {
 
     try {
       const token = await login(loginCredentials).unwrap();
-
-      const decodedToken: JwtPayload = {
-        ...jwtDecode<JwtPayload>(token),
-        token,
-      };
-
+      const decodedToken: JwtPayload = { ...jwtDecode<JwtPayload>(token), token };
       dispatch(setUser(decodedToken));
-
-      if (buttonChecked) {
-        await saveToken(token);
-      }
-
+      if (buttonChecked) await saveToken(token);
       RouterNavigation.navigate("/Dashboard");
     } catch (err) {
+      // Fallback în caz că nu prinde useEffect-ul de mai sus
+      setErrors((prev) => ({ ...prev, password: "Parola e greșită." }));
+      setErrorMessage("");
       console.log("Login failed: ", err);
     }
-  }, [
-    RouterNavigation,
-    dispatch,
-    form.email,
-    form.password,
-    login,
-    buttonChecked,
-  ]);
+  }, [form, login, dispatch, RouterNavigation, buttonChecked]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#101820" }}>
@@ -85,13 +98,13 @@ const Login = () => {
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>
-            Sign in to <Text style={{ color: "#2D3436  " }}>FindEVENT</Text>
+            Sign in to <Text style={{ color: "#2D3436" }}>FindEVENT</Text>
           </Text>
-          <Text style={styles.subtitle}>
-            Go discover your activities in your area and more
-          </Text>
+          <Text style={styles.subtitle}>Go discover your activities in your area and more</Text>
         </View>
+
         <View style={styles.form}>
+          {/* Email */}
           <View style={styles.input}>
             <Text style={styles.inputLabel}>Email address / Username</Text>
             <TextInput
@@ -99,77 +112,72 @@ const Login = () => {
               autoCorrect={false}
               clearButtonMode="while-editing"
               keyboardType="email-address"
-              onChangeText={(email) => setForm({ ...form, email })}
               placeholder="john@example.com"
               placeholderTextColor="#6b7280"
-              style={styles.inputControl}
               value={form.email}
+              onChangeText={(email) => {
+                setForm((f) => ({ ...f, email }));
+                if (errors.email) setErrors((e) => ({ ...e, email: undefined })); // curăță eroarea la input
+              }}
+              style={[
+                styles.inputControl,
+                errors.email ? { borderColor: "red", borderWidth: 1 } : null,
+              ]}
             />
+            {!!errors.email && <Text style={{ color: "red" }}>{errors.email}</Text>}
           </View>
+
+          {/* Password */}
           <View style={styles.input}>
             <Text style={styles.inputLabel}>Password</Text>
             <TextInput
               autoCorrect={false}
               clearButtonMode="while-editing"
-              onChangeText={(password) => setForm({ ...form, password })}
               placeholder="****"
               placeholderTextColor="#6b7280"
-              style={styles.inputControl}
-              secureTextEntry={true}
+              secureTextEntry
               value={form.password}
-            />
-          </View>
-          <View style={styles.formAction}>
-            <Pressable
-              onPress={toggleButtonChecked}
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                paddingBottom: 8,
+              onChangeText={(password) => {
+                setForm((f) => ({ ...f, password }));
+                if (errors.password) setErrors((e) => ({ ...e, password: undefined })); // curăță eroarea la input
               }}
-            >
-              <Ionicons
-                name={buttonChecked ? "checkbox-outline" : "square-outline"}
-                size={24}
-                color="white"
-              />
-              <Text
-                style={{
-                  ...styles.inputLabel,
-                  paddingStart: 4,
-                }}
-              >
-                Keep me signed in
-              </Text>
+              style={[
+                styles.inputControl,
+                errors.password ? { borderColor: "red", borderWidth: 1 } : null,
+              ]}
+            />
+            {!!errors.password && <Text style={{ color: "red" }}>{errors.password}</Text>}
+          </View>
+
+          <View style={styles.formAction}>
+            <Pressable onPress={toggleButtonChecked} style={{ flexDirection: "row", paddingBottom: 8 }}>
+              <Ionicons name={buttonChecked ? "checkbox-outline" : "square-outline"} size={24} color="white" />
+              <Text style={{ ...styles.inputLabel, paddingStart: 4 }}>Keep me signed in</Text>
             </Pressable>
+
             <TouchableOpacity onPress={handleSignIn}>
               <View style={styles.btn}>
                 <Text style={styles.btnText}>Sign in</Text>
               </View>
             </TouchableOpacity>
           </View>
+
+          {/* Banner generic (non-401) */}
           {!!errorMessage && (
             <View>
               <Text style={styles.errorMessage}>{errorMessage}</Text>
             </View>
           )}
-          <TouchableOpacity
-            onPress={() => {
-              // RouterNavigation.navigate('/Homepage')
-            }}
-          >
+
+          <TouchableOpacity>
             <Text style={styles.formLink}>Forgot password?</Text>
           </TouchableOpacity>
         </View>
       </View>
-      <TouchableOpacity
-        onPress={() => {
-          RouterNavigation.navigate("/SignUp");
-        }}
-      >
+
+      <TouchableOpacity onPress={() => RouterNavigation.navigate("/SignUp")}>
         <Text style={styles.formFooter}>
-          Don&apos;t have an account?&nbsp;
-          <Text style={{ textDecorationLine: "underline" }}>Sign up</Text>
+          Don&apos;t have an account? <Text style={{ textDecorationLine: "underline" }}>Sign up</Text>
         </Text>
       </TouchableOpacity>
     </SafeAreaView>
