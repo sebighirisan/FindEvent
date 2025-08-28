@@ -3,6 +3,7 @@ package com.find.event.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -25,27 +26,40 @@ import static com.find.event.utils.constants.RoleConstants.SUPERUSER;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final UserDetailsService userDetailsService;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http,
-                                           JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) throws Exception {
+    public SecurityFilterChain filterChain(
+            HttpSecurity http,
+            JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint
+    ) throws Exception {
+
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // Admin area
                         .requestMatchers("/admin/**").hasAnyRole(ADMIN, SUPERUSER)
-                        .requestMatchers("/auth/**", "/swagger-ui/**", "/event/*/image").permitAll()
+
+                        // Public endpoints
+                        .requestMatchers("/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        // Make ALL GET requests to /event/** public (details, lists, image, etc.)
+                        .requestMatchers(HttpMethod.GET, "/event/**").permitAll()
+
+                        // Everything else requires authentication
                         .anyRequest().authenticated()
                 )
+                // JWT filter chain
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .userDetailsService(userDetailsService)
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint))
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .build();
     }
 
+    // CORS – permite frontend-ului (poți restrânge allowedOrigins la domeniile tale)
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
@@ -53,7 +67,7 @@ public class SecurityConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOrigins("*")
-                        .allowedMethods("GET","POST", "PUT", "DELETE", "OPTIONS", "HEAD");
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD");
             }
         };
     }

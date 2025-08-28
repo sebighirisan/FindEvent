@@ -7,6 +7,7 @@ import {
   IconName,
 } from "@/utils/color.util";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router"; // 👈 adăugat
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -14,6 +15,7 @@ import {
   Linking,
   Modal,
   Platform,
+  Pressable,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -49,14 +51,11 @@ const EventCard = ({ event, onPressMap }: EventCardProps) => {
 
   const formatDate = (date: string) => {
     const d = new Date(date);
-
     return d.toLocaleDateString() + " " + d.toLocaleTimeString();
   };
 
   const openLink = async (url: string) => {
-    // Check if the device can open the URL
     const supported = await Linking.canOpenURL(url);
-
     if (supported) {
       await Linking.openURL(url);
     } else {
@@ -64,112 +63,116 @@ const EventCard = ({ event, onPressMap }: EventCardProps) => {
     }
   };
 
+  // 👇 navigare către ecranul de detalii
+  const goToDetails = () => {
+    router.push({ pathname: "/event/[id]", params: { id: String(event.id) } });
+  };
+
   return (
-    <View style={styles.card}>
-      <Modal
-        animationType="slide" // "none", "slide", "fade"
-        transparent={true} // makes background see-through
-        visible={modalIsVisible}
-        onRequestClose={() => setModalIsVisible(false)} // required on Android
-      >
-        <View style={styles.overlay}>
-          <View style={styles.modalContent}>
-            {Platform.OS === "web" ? (
-              <Image
-                style={styles.mapPreviewLocation}
-                source={{
-                  uri: getMapPreview(latitude, longitude),
-                }}
-              />
-            ) : (
-              <></>
-              // <Map lat={latitude} lng={longitude} locationName={event.name} />
-            )}
-            <View
-              style={{
-                alignItems: "center",
-              }}
-            >
-              <TouchableOpacity
-                style={{
-                  ...styles.mapButton,
-                  backgroundColor: "red",
-                }}
-                onPress={() => setModalIsVisible(false)}
-              >
-                <Ionicons name="close-circle-outline" size={16} color="#fff" />
-                <Text style={styles.mapButtonText}>Hide Map</Text>
-              </TouchableOpacity>
+    <Pressable
+      onPress={goToDetails}
+      style={({ pressed }) => [{ opacity: pressed ? 0.95 : 1 }]}
+    >
+      <View style={styles.card}>
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalIsVisible}
+          onRequestClose={() => setModalIsVisible(false)}
+        >
+          <View style={styles.overlay}>
+            <View style={styles.modalContent}>
+              {Platform.OS === "web" ? (
+                <Image
+                  style={styles.mapPreviewLocation}
+                  source={{ uri: getMapPreview(latitude, longitude) }}
+                />
+              ) : (
+                <></>
+                // <Map lat={latitude} lng={longitude} locationName={event.name} />
+              )}
+              <View style={{ alignItems: "center" }}>
+                <TouchableOpacity
+                  style={{ ...styles.mapButton, backgroundColor: "red" }}
+                  onPress={() => setModalIsVisible(false)}
+                >
+                  <Ionicons
+                    name="close-circle-outline"
+                    size={16}
+                    color="#fff"
+                  />
+                  <Text style={styles.mapButtonText}>Hide Map</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
-      </Modal>
-      <View style={styles.content}>
-        <View style={styles.headerActions}>
-          <TouchableOpacity>
-            <Ionicons
-              name={
-                event.going ? "checkmark-circle" : "checkmark-circle-outline"
-              }
-              size={20}
-              color="#50C878"
-            />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Ionicons
-              name={event.interested ? "heart" : "heart-outline"}
-              size={20}
-              color="#EE4B2B"
-            />
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.title}>{event.name}</Text>
-        <Text style={styles.publisher}>By {event.publisher.username}</Text>
-        <View style={styles.typeContainer}>
-          <Ionicons name={eventTypeIcon} size={20} color={eventTypeColor} />
-          <Text
-            style={{
-              ...styles.type,
-              color: eventTypeColor,
-            }}
-          >
-            {event.type}
-          </Text>
-        </View>
+        </Modal>
 
-        <Text numberOfLines={3} style={styles.description}>
-          {event.description}
-        </Text>
-
-        <View style={styles.datesRow}>
-          <Ionicons name="time-outline" size={16} color="#fff" />
-          <Text style={styles.dates}>
-            {formatDate(event.startDate)}
-            {event.endDate ? ` - ${formatDate(event.endDate)}` : ""}
-          </Text>
-        </View>
-
-        <View style={styles.actionsRow}>
-          <TouchableOpacity
-            style={styles.mapButton}
-            onPress={() => setModalIsVisible(true)}
-          >
-            <Ionicons name="map-outline" size={16} color="#fff" />
-            <Text style={styles.mapButtonText}>Show on Map</Text>
-          </TouchableOpacity>
-
-          {event.hyperlink && (
-            <TouchableOpacity
-              style={styles.linkButton}
-              onPress={() => openLink(event.hyperlink!)}
-            >
-              <Ionicons name="link-outline" size={16} color="#fff" />
-              <Text style={styles.linkButtonText}>Open Link</Text>
+        <View style={styles.content}>
+          <View style={styles.headerActions}>
+            <TouchableOpacity>
+              <Ionicons
+                name={
+                  event.going ? "checkmark-circle" : "checkmark-circle-outline"
+                }
+                size={20}
+                color="#50C878"
+              />
             </TouchableOpacity>
-          )}
+            <TouchableOpacity>
+              <Ionicons
+                name={event.interested ? "heart" : "heart-outline"}
+                size={20}
+                color="#EE4B2B"
+              />
+            </TouchableOpacity>
+          </View>
+
+          <Text style={styles.title}>{event.name}</Text>
+          <Text style={styles.publisher}>By {event.publisher.username}</Text>
+
+          <View style={styles.typeContainer}>
+            <Ionicons name={eventTypeIcon} size={20} color={eventTypeColor} />
+            <Text style={{ ...styles.type, color: eventTypeColor }}>
+              {event.type}
+            </Text>
+          </View>
+
+          <Text numberOfLines={3} style={styles.description}>
+            {event.description}
+          </Text>
+
+          <View style={styles.datesRow}>
+            <Ionicons name="time-outline" size={16} color="#fff" />
+            <Text style={styles.dates}>
+              {formatDate(event.startDate)}
+              {event.endDate ? ` - ${formatDate(event.endDate)}` : ""}
+            </Text>
+          </View>
+
+          <View style={styles.actionsRow}>
+            {/* Butoanele rămân funcționale; apăsarea lor NU va declanșa navigarea cardului */}
+            <TouchableOpacity
+              style={styles.mapButton}
+              onPress={() => setModalIsVisible(true)}
+            >
+              <Ionicons name="map-outline" size={16} color="#fff" />
+              <Text style={styles.mapButtonText}>Show on Map</Text>
+            </TouchableOpacity>
+
+            {event.hyperlink && (
+              <TouchableOpacity
+                style={styles.linkButton}
+                onPress={() => openLink(event.hyperlink!)}
+              >
+                <Ionicons name="link-outline" size={16} color="#fff" />
+                <Text style={styles.linkButtonText}>Open Link</Text>
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
       </View>
-    </View>
+    </Pressable>
   );
 };
 
@@ -188,46 +191,14 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  content: {
-    flex: 1,
-    padding: 16,
-  },
-  title: {
-    color: "#fff",
-    fontSize: 20,
-    fontWeight: "800",
-    marginBottom: 4,
-  },
-  publisher: {
-    fontSize: 14,
-    color: "#9CA3AF",
-    marginBottom: 4,
-  },
-  typeContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  type: {
-    fontSize: 15,
-    color: "#999",
-    fontStyle: "italic",
-    marginStart: 5,
-  },
-  description: {
-    fontSize: 14,
-    color: "#fff",
-    marginVertical: 12,
-  },
-  datesRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  dates: {
-    fontSize: 12,
-    color: "#fff",
-    marginLeft: 4,
-  },
+  content: { flex: 1, padding: 16 },
+  title: { color: "#fff", fontSize: 20, fontWeight: "800", marginBottom: 4 },
+  publisher: { fontSize: 14, color: "#9CA3AF", marginBottom: 4 },
+  typeContainer: { flexDirection: "row", alignItems: "center" },
+  type: { fontSize: 15, color: "#999", fontStyle: "italic", marginStart: 5 },
+  description: { fontSize: 14, color: "#fff", marginVertical: 12 },
+  datesRow: { flexDirection: "row", alignItems: "center", marginBottom: 12 },
+  dates: { fontSize: 12, color: "#fff", marginLeft: 4 },
   actionsRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -274,7 +245,7 @@ const styles = StyleSheet.create({
   // Modal
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)", // dimmed background
+    backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -284,7 +255,7 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: "#fff",
     borderRadius: 10,
-    elevation: 5, // shadow on Android
+    elevation: 5,
   },
   mapPreviewLocation: {
     height: 300,
