@@ -22,7 +22,10 @@ import {
   View,
 } from "react-native";
 
+import { RootState } from "@/store";
+import formatDate from "@/utils/date.utils";
 import { getMapPreview } from "@/utils/location.util";
+import { useSelector } from "react-redux";
 
 interface EventCardProps {
   event: Event;
@@ -39,20 +42,23 @@ const EventCard = ({ event, onPressMap }: EventCardProps) => {
   const [longitude, setLongitude] = useState<number>(0);
   const [modalIsVisible, setModalIsVisible] = useState(false);
 
+  const [isGoing, setIsGoing] = useState(false);
+  const [isInterested, setIsInterested] = useState(false);
+
+  const username = useSelector((state: RootState) => state.auth.username);
+
   useEffect(() => {
     setLatitude(event.location.latitude);
     setLongitude(event.location.longitude);
-  }, [event]);
+
+    setIsInterested(event.interested.some((user) => user === username));
+    setIsGoing(event.going.some((user) => user === username));
+  }, [event, username]);
 
   useEffect(() => {
     setEventTypeColor(getColorByEventType(event.type));
     setEventTypeIcon(getIconByEventType(event.type));
   }, [event]);
-
-  const formatDate = (date: string) => {
-    const d = new Date(date);
-    return d.toLocaleDateString() + " " + d.toLocaleTimeString();
-  };
 
   const openLink = async (url: string) => {
     const supported = await Linking.canOpenURL(url);
@@ -112,16 +118,14 @@ const EventCard = ({ event, onPressMap }: EventCardProps) => {
           <View style={styles.headerActions}>
             <TouchableOpacity>
               <Ionicons
-                name={
-                  event.going ? "checkmark-circle" : "checkmark-circle-outline"
-                }
+                name={isGoing ? "checkmark-circle" : "checkmark-circle-outline"}
                 size={20}
                 color="#50C878"
               />
             </TouchableOpacity>
             <TouchableOpacity>
               <Ionicons
-                name={event.interested ? "heart" : "heart-outline"}
+                name={isInterested ? "heart" : "heart-outline"}
                 size={20}
                 color="#EE4B2B"
               />
@@ -192,7 +196,13 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   content: { flex: 1, padding: 16 },
-  title: { color: "#fff", fontSize: 20, fontWeight: "800", marginBottom: 4 },
+  title: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "800",
+    marginBottom: 4,
+    paddingRight: 16,
+  },
   publisher: { fontSize: 14, color: "#9CA3AF", marginBottom: 4 },
   typeContainer: { flexDirection: "row", alignItems: "center" },
   type: { fontSize: 15, color: "#999", fontStyle: "italic", marginStart: 5 },

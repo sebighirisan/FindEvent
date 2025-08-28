@@ -1,6 +1,9 @@
 package com.find.event.mapper.mapstruct;
 
+import com.find.event.entity.AttendanceEntity;
 import com.find.event.entity.EventEntity;
+import com.find.event.entity.UserEntity;
+import com.find.event.enums.AttendanceStatusEnum;
 import com.find.event.exception.ErrorCode;
 import com.find.event.exception.FindEventInternalServerError;
 import com.find.event.mapper.annotations.IgnoreAuditMappings;
@@ -15,10 +18,12 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Base64;
+import java.util.ArrayList;
+import java.util.List;
 
 @Mapper(
         componentModel = "spring",
@@ -28,6 +33,9 @@ import java.util.Base64;
 public interface EventMapper {
     @Mapping(target = "status", source = "eventStatus.status")
     @Mapping(target = "type", source = "type.name")
+    @Mapping(target = "interested", source = ".", qualifiedByName = "mapInterested")
+    @Mapping(target = "going", source = ".", qualifiedByName = "mapGoing")
+    @Mapping(target = "hasSplashImage", expression = "java(eventEntity.getSplashImage() != null && eventEntity.getSplashImage().length > 0)")
 //    @Mapping(target = "splashImage", qualifiedByName = "convertSplashImageToBase64")
     EventDTO eventEntityToEventDTO(EventEntity eventEntity);
 
@@ -65,5 +73,31 @@ public interface EventMapper {
         } catch (IOException e) {
             throw new FindEventInternalServerError(ErrorCode.INTERNAL_SERVER_ERROR, e);
         }
+    }
+
+    @Named("mapInterested")
+    default List<String> mapInterested(EventEntity event) {
+        if (CollectionUtils.isEmpty(event.getEventAttendances())) {
+            return new ArrayList<>();
+        }
+
+        return event.getEventAttendances().stream()
+                .filter(eventAttendance -> AttendanceStatusEnum.INTERESTED.equals(eventAttendance.getAttendanceStatus()))
+                .map(AttendanceEntity::getUser)
+                .map(UserEntity::getUsername)
+                .toList();
+    }
+
+    @Named("mapGoing")
+    default List<String> mapGoing(EventEntity event) {
+        if (CollectionUtils.isEmpty(event.getEventAttendances())) {
+            return new ArrayList<>();
+        }
+
+        return event.getEventAttendances().stream()
+                .filter(eventAttendance -> AttendanceStatusEnum.GOING.equals(eventAttendance.getAttendanceStatus()))
+                .map(AttendanceEntity::getUser)
+                .map(UserEntity::getUsername)
+                .toList();
     }
 }

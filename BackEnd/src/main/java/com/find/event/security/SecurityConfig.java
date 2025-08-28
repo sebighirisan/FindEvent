@@ -3,7 +3,6 @@ package com.find.event.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -41,15 +40,8 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Admin area
                         .requestMatchers("/admin/**").hasAnyRole(ADMIN, SUPERUSER)
-
-                        // Public endpoints
-                        .requestMatchers("/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        // Make ALL GET requests to /event/** public (details, lists, image, etc.)
-                        .requestMatchers(HttpMethod.GET, "/event/**").permitAll()
-
-                        // Everything else requires authentication
+                        .requestMatchers("/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/event/*/image").permitAll()
                         .anyRequest().authenticated()
                 )
                 // JWT filter chain
@@ -59,7 +51,6 @@ public class SecurityConfig {
                 .build();
     }
 
-    // CORS – permite frontend-ului (poți restrânge allowedOrigins la domeniile tale)
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {

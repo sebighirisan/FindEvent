@@ -35,6 +35,12 @@ export const eventApi = createApi({
         },
       }),
     }),
+    fetchEventById: builder.query<Event, { id: number }>({
+      query: ({ id }) => ({
+        url: `/${id}`,
+        method: "GET",
+      }),
+    }),
     fetchTrendingEvents: builder.query<
       PaginatedResponseModel<Event>,
       { page: number; size: number }
@@ -69,7 +75,7 @@ export const eventApi = createApi({
         type,
         splashImage,
         startDate,
-        endDate
+        endDate,
       }) => {
         const formData = new FormData();
         formData.append("name", name);
@@ -98,5 +104,6 @@ export const {
   useFetchTrendingEventsQuery,
   useFetchUpcomingEventsQuery,
   useFetchEventTypesQuery,
-  useCreateEventMutation
+  useFetchEventByIdQuery,
+  useCreateEventMutation,
 } = eventApi;

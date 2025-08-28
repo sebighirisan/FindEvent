@@ -285,7 +285,6 @@ public class EventServiceImpl implements EventService {
         Page<EventEntity> personalEventsPaginated = switch (attendanceStatus) {
             case GOING -> eventJpaRepository.findGoingEvents(authenticatedUserId, pageable);
             case INTERESTED -> eventJpaRepository.findInterestedEvents(authenticatedUserId, pageable);
-            default -> throw new FindEventBadRequestException(ErrorCode.INVALID_FILTER_PARAM, attendanceStatus, "attendance status");
         };
 
         List<EventDTO> items = personalEventsPaginated.getContent()
