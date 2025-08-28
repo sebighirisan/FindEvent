@@ -89,6 +89,16 @@ const appStyles = StyleSheet.create({
     textAlign: "center",
     letterSpacing: 0.15,
   },
+  coordsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 12,
+    gap: 12, // if RN version < 0.71, remove this and use margin
+  },
+
+  coordInput: {
+    flex: 1,
+  },
 
   /** Inputs (light) */
   input: { marginBottom: 16 },
@@ -146,9 +156,9 @@ const appStyles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 12,
-    paddingVertical: 14,
+    paddingVertical: 8,
     paddingHorizontal: 24,
-    backgroundColor: "#182333",
+    backgroundColor: "#43A047",
     borderWidth: 1,
     borderColor: "#263241",
     color: "#f8f9f9ff",
@@ -312,10 +322,10 @@ const appStyles = StyleSheet.create({
   },
 
   /** Featured row + cards */
-  featuredRowContainer: { 
-    paddingHorizontal: 16, 
+  featuredRowContainer: {
+    paddingHorizontal: 16,
     paddingVertical: 12,
-    gap: 12
+    gap: 12,
   },
   featuredCard: {
     width: Math.round(width * 0.82),

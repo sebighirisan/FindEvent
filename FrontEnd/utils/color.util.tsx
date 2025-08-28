@@ -10,17 +10,23 @@ export type EventTypeConfig = {
 // Centralized mapping of event types → color + icon
 const EVENT_TYPE_MAP: Record<string, EventTypeConfig> = {
   // Music-related
+  Music: { color: "#A8E6CF", icon: "musical-notes-outline" },
   "Outdoor Concert": { color: "#A8E6CF", icon: "musical-notes-outline" },
   "Local Concert": { color: "#A8E6CF", icon: "musical-notes-outline" },
   "Music Festival": { color: "#A8E6CF", icon: "musical-notes-outline" },
   "Orchestra Performance": { color: "#A8E6CF", icon: "musical-notes-outline" },
 
   // Sport & Fitness
+  "Sport & Fitness": { color: "#FFF3B0", icon: "barbell-outline" },
   Marathon: { color: "#FFF3B0", icon: "barbell-outline" },
   Race: { color: "#FFF3B0", icon: "barbell-outline" },
   Tournament: { color: "#FFF3B0", icon: "barbell-outline" },
 
   // Arts
+  "Performance & Visual Arts": {
+    color: "#C9CBEF",
+    icon: "color-palette-outline",
+  },
   "Theater Performance": { color: "#C9CBEF", icon: "color-palette-outline" },
   "Song Contest": { color: "#C9CBEF", icon: "color-palette-outline" },
   "Street Performance": { color: "#C9CBEF", icon: "color-palette-outline" },
@@ -28,11 +34,13 @@ const EVENT_TYPE_MAP: Record<string, EventTypeConfig> = {
   "Art Expo": { color: "#C9CBEF", icon: "color-palette-outline" },
 
   // Food & Drink
+  "Food & Drink Events": { color: "#E1E8F0", icon: "wine-outline" },
   "Food Truck Festival": { color: "#E1E8F0", icon: "wine-outline" },
   "Cooking Competition": { color: "#E1E8F0", icon: "wine-outline" },
   "Gala Dinner": { color: "#E1E8F0", icon: "wine-outline" },
 
   // Education
+  "Educational & Professional": { color: "#B5E2FA", icon: "school-outline" },
   Conference: { color: "#B5E2FA", icon: "school-outline" },
   "Networking Event": { color: "#B5E2FA", icon: "school-outline" },
   Workshop: { color: "#B5E2FA", icon: "school-outline" },
@@ -40,11 +48,13 @@ const EVENT_TYPE_MAP: Record<string, EventTypeConfig> = {
   "Training Seminar": { color: "#B5E2FA", icon: "school-outline" },
 
   // Charity
+  Charity: { color: "#F7C6D9", icon: "heart-outline" },
   Fundraiser: { color: "#F7C6D9", icon: "heart-outline" },
   Auction: { color: "#F7C6D9", icon: "heart-outline" },
   Volunteering: { color: "#F7C6D9", icon: "heart-outline" },
 
   // Activism
+  "Activism & Social Movement": { color: "#D6F5E3", icon: "megaphone-outline" },
   Protest: { color: "#D6F5E3", icon: "megaphone-outline" },
   "Awareness Movement": { color: "#D6F5E3", icon: "megaphone-outline" },
   "Public Gathering": { color: "#D6F5E3", icon: "megaphone-outline" },

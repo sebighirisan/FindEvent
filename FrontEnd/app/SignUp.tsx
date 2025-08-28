@@ -45,7 +45,7 @@ const SignUp = () => {
 
   const handleSignup = useCallback(async () => {
     const signupCredentials: Signup = {
-      username: form.email,
+      username: form.username,
       password: form.password,
       lastName: form.lastname,
       firstName: form.firstname,

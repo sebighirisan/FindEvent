@@ -105,6 +105,24 @@ const EventCard = ({ event, onPressMap }: EventCardProps) => {
         </View>
       </Modal>
       <View style={styles.content}>
+        <View style={styles.headerActions}>
+          <TouchableOpacity>
+            <Ionicons
+              name={
+                event.going ? "checkmark-circle" : "checkmark-circle-outline"
+              }
+              size={20}
+              color="#50C878"
+            />
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Ionicons
+              name={event.interested ? "heart" : "heart-outline"}
+              size={20}
+              color="#EE4B2B"
+            />
+          </TouchableOpacity>
+        </View>
         <Text style={styles.title}>{event.name}</Text>
         <Text style={styles.publisher}>By {event.publisher.username}</Text>
         <View style={styles.typeContainer}>
@@ -242,6 +260,15 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     fontSize: 12,
     fontWeight: "600",
+  },
+
+  headerActions: {
+    flexDirection: "row",
+    gap: 8,
+    position: "absolute",
+    top: 10,
+    right: 10,
+    zIndex: 2000,
   },
 
   // Modal
