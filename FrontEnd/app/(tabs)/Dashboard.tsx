@@ -127,16 +127,14 @@ const Dashboard = () => {
   }, [selectedCategory, selectedLocation]);
 
   // Navigate to /EventPage with params
-  const goToEvent = (item: { id: string; title: string; location: string }) => {
-    router.push({
-      pathname: "./(tabs)/EventPage", // since EventPage.tsx is in (tabs)
-      params: {
-        id: item.id,
-        title: item.title,
-        location: item.location,
-      },
-    });
-  };
+  // Navigate to /event/[id]
+const goToEvent = (item: { id: string; title: string; location: string }) => {
+  router.push({
+    pathname: "/event/[id]",
+    params: { id: String(item.id) }, // trimitem DOAR id-ul
+  });
+};
+
 
   return (
     <SafeAreaView style={styles.rootDark}>
