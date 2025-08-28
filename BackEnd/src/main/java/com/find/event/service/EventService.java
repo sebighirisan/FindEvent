@@ -70,6 +70,8 @@ public interface EventService {
 
     void updateAttendanceStatus(Long eventId, AttendanceStatusEnum attendanceStatus);
 
+    void deleteEventAttendanceStatus(Long eventId);
+
     /**
      * Retrieves a list of all event categories along with their associated event types.
      *

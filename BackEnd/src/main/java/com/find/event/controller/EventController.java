@@ -67,6 +67,13 @@ public class EventController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @DeleteMapping("/{id}/attendance")
+    public ResponseEntity<Void> deleteEventAttendanceStatus(@PathVariable("id") Long eventId) {
+        eventService.deleteEventAttendanceStatus(eventId);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
     @PatchMapping("/{id}")
     public ResponseEntity<Void> updateEventStatus(@PathVariable("id") Long eventId,
                                                   @RequestBody UpdateEventStatusDTO updatedEventStatus) {

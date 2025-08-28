@@ -126,8 +126,6 @@ const Dashboard = () => {
     });
   }, [selectedCategory, selectedLocation]);
 
-  // Navigate to /EventPage with params
-  // Navigate to /event/[id]
 const goToEvent = (item: { id: string; title: string; location: string }) => {
   router.push({
     pathname: "/event/[id]",
@@ -138,7 +136,6 @@ const goToEvent = (item: { id: string; title: string; location: string }) => {
 
   return (
     <SafeAreaView style={styles.rootDark}>
-      {/* Fixed header, consistent on all pages */}
       <View style={styles.fixedHeaderWrap}>
         <View style={styles.headerDark}>
           <Text style={styles.titleDark}>

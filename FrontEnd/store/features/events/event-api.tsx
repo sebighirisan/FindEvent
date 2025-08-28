@@ -96,6 +96,21 @@ export const eventApi = createApi({
         };
       },
     }),
+    updateAttendanceStatus: builder.mutation<any, {id: number, attendanceStatus: AttendanceStatusEnum}>({
+      query: ({ id, attendanceStatus }) => ({
+        url: `${id}/attendance`,
+        method: "PUT",
+        params: {
+          status: attendanceStatus
+        }
+      }),
+    }),
+    deleteAttendanceStatus: builder.mutation<any, { id: number }>({
+      query: ({ id }) => ({
+        url: `${id}/attendance`,
+        method: "DELETE",
+      }),
+    }),
   }),
 });
 
@@ -106,4 +121,6 @@ export const {
   useFetchEventTypesQuery,
   useFetchEventByIdQuery,
   useCreateEventMutation,
+  useDeleteAttendanceStatusMutation,
+  useUpdateAttendanceStatusMutation
 } = eventApi;

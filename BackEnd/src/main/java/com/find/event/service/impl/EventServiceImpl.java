@@ -219,10 +219,6 @@ public class EventServiceImpl implements EventService {
             throw new FindEventBadRequestException(ErrorCode.INVALID_UNAPPROVED_EVENT, eventId);
         }
 
-        if (Objects.equals(event.getPublisher().getId(), loggedInUser.getId())) {
-            throw new FindEventBadRequestException(ErrorCode.INVALID_OWN_EVENT);
-        }
-
         UserEventId userEventId = new UserEventId(loggedInUser.getId(), eventId);
 
         AttendanceEntity attendanceEntity = attendanceJpaRepository
@@ -234,6 +230,15 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
+    public void deleteEventAttendanceStatus(Long eventId) {
+        Long userId = getAuthenticatedUser().getId();
+
+        attendanceJpaRepository.deleteById(new UserEventId(userId, eventId));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<EventCategoryWithTypesDTO> getEventCategoriesWithTypes() {
         return Arrays.stream(EventTypeEnum.values())
                 .collect(groupingBy(
