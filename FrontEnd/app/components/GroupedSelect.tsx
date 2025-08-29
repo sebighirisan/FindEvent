@@ -23,9 +23,10 @@ interface GroupedData {
 
 interface GroupedSelectProps {
   onChangeCategory: (newCategory: string) => void;
+  label?: string;
 }
 
-export default function GroupedSelect({ onChangeCategory }: GroupedSelectProps) {
+export default function GroupedSelect({ onChangeCategory, label }: GroupedSelectProps) {
   const { data, isLoading, error } = useFetchEventTypesQuery();
 
   const [groupedData, setGroupedData] = useState<GroupedData[]>();
@@ -86,7 +87,7 @@ export default function GroupedSelect({ onChangeCategory }: GroupedSelectProps) 
   return (
     <View style={styles.input}>
       <TouchableOpacity onPress={() => setOpen(true)}>
-        <Text style={styles.inputLabel}>{"Select an option"}</Text>
+        <Text style={styles.inputLabel}>{label ?? "Select an option"}</Text>
       </TouchableOpacity>
 
       <TextInput

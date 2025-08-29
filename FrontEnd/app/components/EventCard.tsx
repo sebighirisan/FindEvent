@@ -1,5 +1,4 @@
-import { Event } from "@/model/event.model";
-import { Location } from "@/model/location.model";
+import { AttendanceStatusEnum, Event } from "@/model/event.model";
 import {
   DEFAULT_EVENT_TYPE_CONFIG,
   getColorByEventType,
@@ -8,7 +7,7 @@ import {
 } from "@/utils/color.util";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router"; // 👈 adăugat
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Alert,
   Image,
@@ -22,14 +21,20 @@ import {
   View,
 } from "react-native";
 
+import { RootState } from "@/store";
+import {
+  useDeleteAttendanceStatusMutation,
+  useUpdateAttendanceStatusMutation,
+} from "@/store/features/events/event-api";
+import formatDate from "@/utils/date.utils";
 import { getMapPreview } from "@/utils/location.util";
+import { useSelector } from "react-redux";
 
 interface EventCardProps {
   event: Event;
-  onPressMap?: (location: Location) => void;
 }
 
-const EventCard = ({ event, onPressMap }: EventCardProps) => {
+const EventCard = ({ event }: EventCardProps) => {
   const [eventTypeColor, setEventTypeColor] = useState("white");
   const [eventTypeIcon, setEventTypeIcon] = useState<IconName>(
     DEFAULT_EVENT_TYPE_CONFIG.icon
@@ -39,20 +44,32 @@ const EventCard = ({ event, onPressMap }: EventCardProps) => {
   const [longitude, setLongitude] = useState<number>(0);
   const [modalIsVisible, setModalIsVisible] = useState(false);
 
+  const [isGoing, setIsGoing] = useState(false);
+  const [isInterested, setIsInterested] = useState(false);
+
+  const [attendees, setAttendees] = useState<string[]>([]);
+  const [interested, setInterested] = useState<string[]>([]);
+
+  const [deleteAttendanceStatus] = useDeleteAttendanceStatusMutation();
+  const [updateAttendanceStatus] = useUpdateAttendanceStatusMutation();
+
+  const username = useSelector((state: RootState) => state.auth.username);
+
   useEffect(() => {
     setLatitude(event.location.latitude);
     setLongitude(event.location.longitude);
-  }, [event]);
+
+    setIsInterested(event.interested.some((user) => user === username));
+    setIsGoing(event.going.some((user) => user === username));
+
+    setAttendees(event.going);
+    setInterested(event.interested);
+  }, [event, username]);
 
   useEffect(() => {
     setEventTypeColor(getColorByEventType(event.type));
     setEventTypeIcon(getIconByEventType(event.type));
   }, [event]);
-
-  const formatDate = (date: string) => {
-    const d = new Date(date);
-    return d.toLocaleDateString() + " " + d.toLocaleTimeString();
-  };
 
   const openLink = async (url: string) => {
     const supported = await Linking.canOpenURL(url);
@@ -63,17 +80,98 @@ const EventCard = ({ event, onPressMap }: EventCardProps) => {
     }
   };
 
-  // 👇 navigare către ecranul de detalii
   const goToDetails = () => {
     router.push({ pathname: "/event/[id]", params: { id: String(event.id) } });
   };
 
+  const onAttendingButtonPressed = useCallback(async () => {
+    try {
+      if (isGoing) {
+        await deleteAttendanceStatus({
+          id: event.id,
+        });
+
+        setIsGoing(false);
+        setAttendees((prevAttendees) =>
+          prevAttendees.filter((attendee) => attendee !== username)
+        );
+      } else {
+        await updateAttendanceStatus({
+          id: event.id,
+          attendanceStatus: AttendanceStatusEnum.GOING,
+        });
+
+        if (isInterested) {
+          setIsInterested(false);
+          setInterested((prevInterested) =>
+            prevInterested.filter((interested) => interested !== username)
+          );
+        }
+
+        setIsGoing(true);
+        setAttendees((prevAttendees) => [...prevAttendees, username!]);
+      }
+    } catch (err) {
+      console.log(err);
+
+      Alert.alert("Error", `Updating the status failed`);
+    }
+  }, [
+    deleteAttendanceStatus,
+    updateAttendanceStatus,
+    event.id,
+    isGoing,
+    isInterested,
+    username,
+  ]);
+
+  const onInterestedButtonPressed = useCallback(async () => {
+    try {
+      if (isInterested) {
+        await deleteAttendanceStatus({
+          id: event.id,
+        });
+
+        setIsInterested(false);
+        setInterested((prevInterested) =>
+          prevInterested.filter((interested) => interested !== username)
+        );
+      } else {
+        await updateAttendanceStatus({
+          id: event.id,
+          attendanceStatus: AttendanceStatusEnum.INTERESTED,
+        });
+
+        if (isGoing) {
+          setIsGoing(false);
+          setAttendees((prevAttendees) =>
+            prevAttendees.filter((attendee) => attendee !== username)
+          );
+        }
+
+        setIsInterested(true);
+        setInterested((prevInterested) => [...prevInterested, username!]);
+      }
+    } catch (err) {
+      console.log(err);
+
+      Alert.alert("Error", "Updating the status failed");
+    }
+  }, [
+    deleteAttendanceStatus,
+    updateAttendanceStatus,
+    event.id,
+    isGoing,
+    isInterested,
+    username,
+  ]);
+
   return (
-    <Pressable
-      onPress={goToDetails}
-      style={({ pressed }) => [{ opacity: pressed ? 0.95 : 1 }]}
-    >
-      <View style={styles.card}>
+    <View style={styles.card}>
+      <Pressable
+        onPress={goToDetails}
+        style={({ pressed }) => [{ opacity: pressed ? 0.95 : 1, flex: 1 }]}
+      >
         <Modal
           animationType="slide"
           transparent={true}
@@ -110,18 +208,16 @@ const EventCard = ({ event, onPressMap }: EventCardProps) => {
 
         <View style={styles.content}>
           <View style={styles.headerActions}>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={onAttendingButtonPressed}>
               <Ionicons
-                name={
-                  event.going ? "checkmark-circle" : "checkmark-circle-outline"
-                }
+                name={isGoing ? "checkmark-circle" : "checkmark-circle-outline"}
                 size={20}
                 color="#50C878"
               />
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={onInterestedButtonPressed}>
               <Ionicons
-                name={event.interested ? "heart" : "heart-outline"}
+                name={isInterested ? "heart" : "heart-outline"}
                 size={20}
                 color="#EE4B2B"
               />
@@ -150,8 +246,54 @@ const EventCard = ({ event, onPressMap }: EventCardProps) => {
             </Text>
           </View>
 
+          <View style={[styles.stats, { gap: 2 }]}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <Ionicons name="checkmark-circle" size={16} color="#50C878" />
+              <Text
+                style={{
+                  fontSize: 12,
+                  color: "#50C878",
+                  fontWeight: "bold",
+                  paddingStart: 4,
+                }}
+              >
+                {attendees.length
+                  ? `Attending: ${attendees.length} user${
+                      attendees.length === 1 ? "" : "s"
+                    }`
+                  : "No attendees"}
+              </Text>
+            </View>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <Ionicons name="heart" size={16} color="#EE4B2B" />
+              <Text
+                style={{
+                  fontSize: 12,
+                  color: "#EE4B2B",
+                  fontWeight: "bold",
+                  paddingStart: 4,
+                }}
+              >
+                {interested.length
+                  ? `Interested: ${interested.length} user${
+                      interested.length === 1 ? "" : "s"
+                    }`
+                  : "No one is interested"}
+              </Text>
+            </View>
+          </View>
+
           <View style={styles.actionsRow}>
-            {/* Butoanele rămân funcționale; apăsarea lor NU va declanșa navigarea cardului */}
             <TouchableOpacity
               style={styles.mapButton}
               onPress={() => setModalIsVisible(true)}
@@ -171,8 +313,8 @@ const EventCard = ({ event, onPressMap }: EventCardProps) => {
             )}
           </View>
         </View>
-      </View>
-    </Pressable>
+      </Pressable>
+    </View>
   );
 };
 
@@ -192,12 +334,21 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   content: { flex: 1, padding: 16 },
-  title: { color: "#fff", fontSize: 20, fontWeight: "800", marginBottom: 4 },
+  title: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "800",
+    marginBottom: 4,
+    paddingRight: 16,
+  },
   publisher: { fontSize: 14, color: "#9CA3AF", marginBottom: 4 },
   typeContainer: { flexDirection: "row", alignItems: "center" },
   type: { fontSize: 15, color: "#999", fontStyle: "italic", marginStart: 5 },
   description: { fontSize: 14, color: "#fff", marginVertical: 12 },
-  datesRow: { flexDirection: "row", alignItems: "center", marginBottom: 12 },
+  datesRow: { flexDirection: "row", alignItems: "center", marginBottom: 8 },
+  stats: {
+    marginBottom: 8,
+  },
   dates: { fontSize: 12, color: "#fff", marginLeft: 4 },
   actionsRow: {
     flexDirection: "row",

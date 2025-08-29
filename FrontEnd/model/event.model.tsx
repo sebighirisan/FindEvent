@@ -15,15 +15,13 @@ export interface Event {
   publisher: User;
   type: string;
   hyperlink: string;
-  splashImage: string;
+  hasSplashImage: boolean;
   location: Location;
   startDate: string;
   endDate?: string;
   status: EventStatusEnum;
-  going: boolean;
-  interested: boolean;
-  goingNo: number;
-  interestedNo: number;
+  going: string[];
+  interested: string[];
 }
 
 export enum AttendanceStatusEnum {

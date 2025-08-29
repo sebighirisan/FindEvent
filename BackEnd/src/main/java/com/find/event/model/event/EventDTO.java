@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -19,9 +20,11 @@ public class EventDTO {
     private UserSummaryDTO publisher;
     private String type;
     private String hyperlink;
-    // private String splashImage;
+    private boolean hasSplashImage;
     private LocationDTO location;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private EventStatusEnum status;
+    private List<String> interested;
+    private List<String> going;
 }
