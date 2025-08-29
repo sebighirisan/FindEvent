@@ -184,7 +184,7 @@ const appStyles = StyleSheet.create({
     elevation: 6,
     zIndex: 10,
   },
-  headerDark: { paddingTop: 8, paddingBottom: 8 },
+  headerDark: { paddingVertical: 8 },
   titleDark: {
     fontSize: 24,
     fontWeight: "800",
@@ -200,9 +200,11 @@ const appStyles = StyleSheet.create({
     color: "#e5e7eb",
     borderWidth: 1,
     borderColor: "#263241",
-    marginHorizontal: 16,
     marginTop: 16,
     height: 48,
+    width: 500,
+    maxWidth: "90%",
+    marginHorizontal: "auto",
   },
   filterRow: {
     marginTop: 16,
@@ -308,7 +310,7 @@ const appStyles = StyleSheet.create({
   },
 
   /** Scrollable body */
-  scrollBody: { paddingBottom: 40 },
+  scrollBody: { paddingBottom: 40, alignItems: "center" },
 
   /** Section labels (small, tidy) */
   sectionLabelWrap: { paddingHorizontal: 16, marginTop: 14, marginBottom: 6 },

@@ -1,77 +1,23 @@
 // app/(tabs)/Dashboard.tsx
 import { ErrorResponse } from "@/model/error.model";
+import { Event } from "@/model/event.model";
 import { useFetchUpcomingEventsQuery } from "@/store/features/events/event-api";
-import { router } from "expo-router";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   ScrollView,
   Text,
   TextInput,
-  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import EventCard from "../components/EventCard";
 import styles from "../styles/UITheme";
 
-const categories = ["Party", "HouseParty", "Clubs", "Tour Guides", "Outdoors"];
-const locations = [
-  "Cluj-Napoca",
-  "Club Midi",
-  "Apuseni Mountains",
-  "Central Park",
-  "Vineyard Hill",
-  "Downtown",
-  "Art Café",
-  "Tech Hub",
-];
-
-const moreEvents = [
-  {
-    id: "4",
-    title: "Outdoor Yoga",
-    location: "Central Park",
-    category: "Outdoors",
-  },
-  {
-    id: "5",
-    title: "Wine Tasting",
-    location: "Vineyard Hill",
-    category: "Party",
-  },
-  {
-    id: "6",
-    title: "Food Truck Fiesta",
-    location: "Downtown",
-    category: "Party",
-  },
-  { id: "7", title: "Jazz Night", location: "Art Café", category: "Clubs" },
-  {
-    id: "8",
-    title: "Coding Meetup",
-    location: "Tech Hub",
-    category: "Tour Guides",
-  },
-  {
-    id: "9",
-    title: "Coding Meetup 2",
-    location: "Tech Hub",
-    category: "Tour Guides",
-  },
-  {
-    id: "10",
-    title: "Visit Klausenbrger",
-    location: "Cluj-Napoca",
-    category: "Tour Guides",
-  },
-];
-
 const Dashboard = () => {
-  const [dropdownVisible, setDropdownVisible] = useState(false);
-  const [locationDropdownVisible, setLocationDropdownVisible] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
+  const [eventName, setEventName] = useState<string>();
+
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
 
   const {
     data: upcomingEvents,
@@ -82,57 +28,24 @@ const Dashboard = () => {
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
+    if (!!eventName) {
+      setFilteredEvents(
+        upcomingEvents?.filter((event) =>
+          event.name.toLowerCase().includes(eventName.toLowerCase())
+        ) ?? []
+      );
+    } else {
+      setFilteredEvents(upcomingEvents ?? []);
+    }
+  }, [eventName, upcomingEvents]);
+
+  useEffect(() => {
     if (error && "data" in error) {
       const errorResponse = JSON.parse(error.data as string) as ErrorResponse;
 
       setErrorMessage(errorResponse.message);
     }
   }, [error]);
-
-  const toggleDropdown = () => {
-    setDropdownVisible((v) => !v);
-    if (!dropdownVisible) setLocationDropdownVisible(false);
-  };
-
-  const toggleLocationDropdown = () => {
-    setLocationDropdownVisible((v) => !v);
-    if (!locationDropdownVisible) setDropdownVisible(false);
-  };
-
-  const selectCategory = (category: string) => {
-    setSelectedCategory(category);
-    setDropdownVisible(false);
-  };
-
-  const selectLocation = (location: string) => {
-    setSelectedLocation(location);
-    setLocationDropdownVisible(false);
-  };
-
-  const resetFilters = () => {
-    setSelectedCategory(null);
-    setSelectedLocation(null);
-  };
-
-  const filteredMoreEvents = useMemo(() => {
-    return moreEvents.filter((event) => {
-      const byCat = selectedCategory
-        ? event.category === selectedCategory
-        : true;
-      const byLoc = selectedLocation
-        ? event.location === selectedLocation
-        : true;
-      return byCat && byLoc;
-    });
-  }, [selectedCategory, selectedLocation]);
-
-const goToEvent = (item: { id: string; title: string; location: string }) => {
-  router.push({
-    pathname: "/event/[id]",
-    params: { id: String(item.id) }, // trimitem DOAR id-ul
-  });
-};
-
 
   return (
     <SafeAreaView style={styles.rootDark}>
@@ -144,73 +57,11 @@ const goToEvent = (item: { id: string; title: string; location: string }) => {
 
           <TextInput
             style={styles.searchBarDark}
+            value={eventName}
+            onChangeText={(newName) => setEventName(newName)}
             placeholder="Search your event"
             placeholderTextColor="#94a3b8"
           />
-
-          {/* Filters */}
-          <View style={styles.filterRow}>
-            {/* Category */}
-            <View style={{ alignItems: "center" }}>
-              <TouchableOpacity
-                onPress={toggleDropdown}
-                style={styles.chipButton}
-              >
-                <Text style={styles.chipText}>
-                  {selectedCategory || "Category"}
-                </Text>
-              </TouchableOpacity>
-
-              {dropdownVisible && (
-                <View style={styles.dropdown}>
-                  {categories.map((category) => (
-                    <TouchableOpacity
-                      key={category}
-                      onPress={() => selectCategory(category)}
-                      style={styles.dropdownItem}
-                    >
-                      <Text style={styles.dropdownItemText}>{category}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-            </View>
-
-            {/* Location */}
-            <View style={{ alignItems: "center" }}>
-              <TouchableOpacity
-                onPress={toggleLocationDropdown}
-                style={styles.chipButton}
-              >
-                <Text style={styles.chipText}>
-                  {selectedLocation || "Location"}
-                </Text>
-              </TouchableOpacity>
-
-              {locationDropdownVisible && (
-                <View style={styles.dropdown}>
-                  {locations.map((loc) => (
-                    <TouchableOpacity
-                      key={loc}
-                      onPress={() => selectLocation(loc)}
-                      style={styles.dropdownItem}
-                    >
-                      <Text style={styles.dropdownItemText}>{loc}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-            </View>
-
-            {/* Reset */}
-            <TouchableOpacity onPress={resetFilters} style={styles.chipButton}>
-              <Text
-                style={{ color: "#cce3f0", fontWeight: "600", fontSize: 12 }}
-              >
-                Reset
-              </Text>
-            </TouchableOpacity>
-          </View>
         </View>
       </View>
 
@@ -224,55 +75,32 @@ const goToEvent = (item: { id: string; title: string; location: string }) => {
           <Text style={styles.sectionLabelText}>Upcoming Events</Text>
         </View>
 
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.featuredRowContainer}
-        >
-          {isLoading && <ActivityIndicator color="#fff" />}
+        {isLoading && <ActivityIndicator color="#fff" />}
 
-          {!!errorMessage && (
-            <View>
-              <Text style={styles.errorMessage}>{errorMessage}</Text>
-            </View>
-          )}
+        {!!errorMessage && (
+          <View>
+            <Text style={styles.errorMessage}>{errorMessage}</Text>
+          </View>
+        )}
 
-          {!isLoading && upcomingEvents && upcomingEvents.length > 0 ? (
-            upcomingEvents.map((event) => (
-              <EventCard key={event.id} event={event} />
-            ))
-          ) : (
-            <Text>No upcoming events</Text>
-          )}
-        </ScrollView>
-
-        {/* More */}
-        <View style={styles.sectionLabelWrap}>
-          <Text style={styles.sectionLabelText}>More Events</Text>
-        </View>
-
-        <View style={styles.listWrap}>
-          {filteredMoreEvents.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={styles.eventCard}
-              onPress={() => goToEvent(item)}
-              activeOpacity={0.85}
-            >
-              <Text style={styles.eventTitle} numberOfLines={1}>
-                {item.title}
-              </Text>
-              <Text style={styles.eventSubtitle}>{item.location}</Text>
-            </TouchableOpacity>
-          ))}
-
-          {filteredMoreEvents.length === 0 && (
-            <View style={styles.emptyWrap}>
-              <Text style={styles.emptyText}>No events found.</Text>
-            </View>
-          )}
-        </View>
+        {!isLoading && !!filteredEvents?.length ? (
+          filteredEvents.map((event) => (
+            <EventCard key={event.id} event={event} />
+          ))
+        ) : (
+          <Text
+            style={{
+              color: "#fff",
+              fontSize: 16,
+              marginTop: 12
+            }}
+          >
+            No upcoming events found
+          </Text>
+        )}
       </ScrollView>
+
+      {/* More */}
     </SafeAreaView>
   );
 };
