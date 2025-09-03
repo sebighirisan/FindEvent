@@ -21,7 +21,6 @@ import com.find.event.repository.jpa.AttendanceJpaRepository;
 import com.find.event.repository.jpa.EventJpaRepository;
 import com.find.event.repository.nativequeries.EventRepository;
 import com.find.event.service.EventService;
-import com.find.event.utils.ParamUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,34 +28,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 
 import static com.find.event.enums.EventStatusEnum.*;
 import static com.find.event.utils.JwtUtils.getAuthenticatedUser;
-import static com.find.event.utils.ParamUtils.extractCategories;
-import static com.find.event.utils.ParamUtils.extractEndDate;
-import static com.find.event.utils.ParamUtils.extractLatitude;
-import static com.find.event.utils.ParamUtils.extractLongitude;
-import static com.find.event.utils.ParamUtils.extractProximity;
-import static com.find.event.utils.ParamUtils.extractPublisherId;
-import static com.find.event.utils.ParamUtils.extractStartDate;
-import static com.find.event.utils.ParamUtils.extractStatus;
 import static com.find.event.utils.ValidationUtils.validateEventRequest;
 import static com.find.event.utils.ValidationUtils.validateUpdateEventRequest;
-import static com.find.event.utils.constants.FilterParamConstants.CATEGORIES;
-import static com.find.event.utils.constants.FilterParamConstants.END_DATE;
-import static com.find.event.utils.constants.FilterParamConstants.LATITUDE;
-import static com.find.event.utils.constants.FilterParamConstants.LONGITUDE;
-import static com.find.event.utils.constants.FilterParamConstants.NAME;
-import static com.find.event.utils.constants.FilterParamConstants.PROXIMITY;
-import static com.find.event.utils.constants.FilterParamConstants.PUBLISHER_ID;
-import static com.find.event.utils.constants.FilterParamConstants.START_DATE;
-import static com.find.event.utils.constants.FilterParamConstants.STATUS;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
@@ -77,29 +57,15 @@ public class EventServiceImpl implements EventService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<EventDTO> getEvents(Integer pageNumber,
-                                              Integer pageSize,
-                                              String filterBy,
-                                              String filterValue,
-                                              String orderBy,
-                                              String orderValue) {
-        Map<String, String> filters = ParamUtils.filtersToMap(filterBy, filterValue);
+    public List<EventDTO> getEvents(String name,
+                                    Double longitude,
+                                    Double latitude,
+                                    Long proximity) {
 
-        Integer publisherId = extractPublisherId(filters);
-        String name = Optional.ofNullable(filters.get(NAME)).map(String::trim).orElse(null);
-
-        Map<String, Object> processedFilters = new HashMap<>();
-        processedFilters.put(START_DATE, extractStartDate(filters));
-        processedFilters.put(END_DATE, extractEndDate(filters));
-        processedFilters.put(PUBLISHER_ID, publisherId);
-        processedFilters.put(NAME, name);
-        processedFilters.put(STATUS, extractStatus(filters));
-        processedFilters.put(CATEGORIES, extractCategories(filters));
-        processedFilters.put(PROXIMITY, extractProximity(filters));
-        processedFilters.put(LONGITUDE, extractLongitude(filters));
-        processedFilters.put(LATITUDE, extractLatitude(filters));
-
-        return eventRepository.getEvents(orderBy, orderValue, processedFilters);
+        return eventJpaRepository.findUpcomingEvents(name, longitude, latitude, proximity)
+                .stream()
+                .map(eventMapper::eventEntityToEventDTO)
+                .toList();
     }
 
     @Transactional(readOnly = true)

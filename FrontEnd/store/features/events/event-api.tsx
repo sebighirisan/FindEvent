@@ -44,10 +44,16 @@ export const eventApi = createApi({
         method: "GET",
       }),
     }),
-    fetchUpcomingEvents: builder.query<Event[], void>({
-      query: () => ({
-        url: "upcoming",
+    fetchUpcomingEvents: builder.query<Event[], { name?: string, latitude?: number, longitude?: number, proximity?: number}>({
+      query: ({ name, latitude, longitude, proximity }) => ({
+        url: "",
         method: "GET",
+        params: {
+          name,
+          latitude,
+          longitude,
+          proximity
+        }
       }),
     }),
     fetchEventTypes: builder.query<EventCategoryWithTypes[], void>({
@@ -56,7 +62,7 @@ export const eventApi = createApi({
         method: "GET",
       }),
     }),
-    createEvent: builder.mutation<any, EventRequest>({
+    createEvent: builder.mutation<Event, EventRequest>({
       query: ({
         name,
         description,

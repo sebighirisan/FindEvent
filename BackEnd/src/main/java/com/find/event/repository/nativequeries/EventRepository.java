@@ -26,27 +26,6 @@ public class EventRepository {
               OR LOWER(e.name) LIKE LOWER(CONCAT('%', CAST(:name AS VARCHAR),'%'))
             ) AND
             (
-              CAST(:status AS VARCHAR) IS NULL
-              OR es.status::varchar = CAST(:status AS VARCHAR)
-            ) AND
-            (
-              CAST(:startDate AS DATE) IS NULL
-              OR DATE(e.start_date) >= CAST(:startDate AS DATE)
-            ) AND
-            (
-              CAST(:endDate AS DATE) IS NULL
-              OR (e.end_date IS NULL AND DATE(e.start_date) <= CAST(:endDate AS DATE))
-              OR DATE(e.end_date) <= CAST(:endDate AS DATE)
-            ) AND
-            (
-              CAST(:categories AS VARCHAR[]) IS NULL
-              OR e.type::varchar = ANY(CAST(:categories AS VARCHAR[]))
-            ) AND
-            (
-              CAST(:publisherId AS INTEGER) IS NULL
-              OR u.id = CAST(:publisherId AS INTEGER)
-            ) AND
-            (
               CAST(:proximity AS INTEGER) IS NULL
               OR CAST(:latitude AS NUMERIC) IS NULL
               OR CAST(:longitude AS NUMERIC) IS NULL
@@ -55,7 +34,7 @@ public class EventRepository {
                 ST_MakePoint(CAST(:longitude AS NUMERIC), CAST(:latitude AS NUMERIC))::geography,
                 CAST(:proximity AS INTEGER)
               )
-            )
+            ) AND e.start_date > NOW()
             """;
 
     private static final String EVENT_QUERY = """
@@ -91,11 +70,9 @@ public class EventRepository {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public List<EventDTO> getEvents(String orderBy,
-                                    String orderValue,
-                                    Map<String, Object> filters) {
+    public List<EventDTO> getEvents(Map<String, Object> filters) {
         String orderedQuery = composeQueryWithOrdering(
-                EVENT_ORDER_BY_FIELDS, EVENT_QUERY, orderBy, orderValue
+                EVENT_ORDER_BY_FIELDS, EVENT_QUERY, "startDate", "ASC"
         );
 
         int firstResult = 0;

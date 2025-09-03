@@ -36,14 +36,11 @@ public class EventController {
     }
 
     @GetMapping
-    public ResponseEntity<List<EventDTO>> getEvents(@RequestParam(name = "filterBy", required = false) String filterBy,
-                                                    @RequestParam(name = "filterValue", required = false) String filterValue,
-                                                    @RequestParam(name = "orderBy", required = false) String orderBy,
-                                                    @RequestParam(name = "orderValue", required = false) String orderValue,
-                                                    @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
-                                                    @RequestParam(name = "pageNumber", defaultValue = "0") Integer pageNumber) {
-        return new ResponseEntity<>(eventService.getEvents(
-                pageNumber, pageSize, filterBy, filterValue, orderBy, orderValue), HttpStatus.OK);
+    public ResponseEntity<List<EventDTO>> getEvents(@RequestParam(name = "name", required = false) String name,
+                                                    @RequestParam(name = "longitude", required = false) Double longitude,
+                                                    @RequestParam(name = "latitude", required = false) Double latitude,
+                                                    @RequestParam(name = "proximity", required = false) Long proximity) {
+        return new ResponseEntity<>(eventService.getEvents(name, longitude, latitude, proximity), HttpStatus.OK);
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

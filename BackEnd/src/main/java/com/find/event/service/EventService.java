@@ -10,23 +10,7 @@ import java.util.List;
 
 public interface EventService {
 
-    /**
-     * Retrieves a paginated list of events based on the provided pagination, filtering and ordering parameters.
-     *
-     * @param pageNumber  the page number to retrieve (zero-based or one-based depending on implementation)
-     * @param pageSize    the number of records per page
-     * @param filterBy    the field name to apply filtering on
-     * @param filterValue the value to filter by
-     * @param orderBy     the field name to apply sorting on
-     * @param orderValue  the sort direction (e.g., "asc" or "desc")
-     * @return a paginated model containing the list of matching {@link EventDTO} objects
-     */
-    List<EventDTO> getEvents(Integer pageNumber,
-                             Integer pageSize,
-                             String filterBy,
-                             String filterValue,
-                             String orderBy,
-                             String orderValue);
+    List<EventDTO> getEvents(String name, Double longitude, Double latitude, Long proximity);
 
     /**
      * Retrieves a single event by its unique identifier.

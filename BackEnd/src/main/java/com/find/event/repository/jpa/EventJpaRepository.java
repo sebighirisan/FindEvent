@@ -1,11 +1,10 @@
 package com.find.event.repository.jpa;
 
 import com.find.event.entity.EventEntity;
-import io.lettuce.core.dynamic.annotation.Param;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +29,33 @@ public interface EventJpaRepository extends JpaRepository<EventEntity, Long> {
             ORDER BY COUNT(a.event_id) DESC
            """, nativeQuery = true)
     List<EventEntity> findTrendingEvents();
+
+    @Query(value = """
+            SELECT e.* FROM events e
+            JOIN users u ON e.publisher_id = u.id
+            JOIN event_status es ON e.id = es.event_id
+            JOIN locations l ON e.id = l.event_id
+            WHERE
+            (
+              CAST(:name AS VARCHAR) IS NULL
+              OR LOWER(e.name) LIKE LOWER(CONCAT('%', CAST(:name AS VARCHAR),'%'))
+            ) AND
+            (
+              CAST(:proximity AS INTEGER) IS NULL
+              OR CAST(:latitude AS NUMERIC) IS NULL
+              OR CAST(:longitude AS NUMERIC) IS NULL
+              OR ST_DWithin(
+                l.coordinates,
+                ST_MakePoint(CAST(:longitude AS NUMERIC), CAST(:latitude AS NUMERIC))::geography,
+                CAST(:proximity AS INTEGER)
+              )
+            ) AND e.start_date > NOW()
+            ORDER BY e.start_date ASC
+            """, nativeQuery = true)
+    List<EventEntity> findUpcomingEvents(@Param("name") String name,
+                                         @Param("longitude") Double longitude,
+                                         @Param("latitude") Double latitude,
+                                         @Param("proximity") Long proximity);
 
     @Query("""
            SELECT DISTINCT e FROM EventEntity e

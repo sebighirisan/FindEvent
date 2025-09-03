@@ -1,5 +1,6 @@
 import { EventRequest } from "@/model/event.model";
 import { useCreateEventMutation } from "@/store/features/events/event-api";
+import { addUpcomingEvent } from "@/store/features/events/event-slice";
 import { getAddress } from "@/utils/location.util";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
@@ -15,6 +16,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useDispatch } from "react-redux";
 import GroupedSelect from "./components/GroupedSelect";
 import styles from "./styles/UITheme";
 
@@ -198,6 +200,8 @@ const CreateEvent = () => {
     if (submitted && errors[k]) setErrors((e) => ({ ...e, [k]: undefined }));
   };
 
+  const dispatch = useDispatch();
+
   const onSave = useCallback(async () => {
     setSubmitted(true);
     const ok = validate();
@@ -226,14 +230,17 @@ const CreateEvent = () => {
     };
 
     try {
-      await createEvent(eventRequest).unwrap();
+      const event = await createEvent(eventRequest).unwrap();
+
+      dispatch(addUpcomingEvent(event));
+
       Alert.alert("Succes", "Evenimentul a fost creat.");
       router.push("..");
     } catch (err) {
       if (!errorMessage) setErrorMessage("Crearea evenimentului a eșuat.");
       console.error("Upload failed:", err);
     }
-  }, [form, createEvent, router, errorMessage, validate, fileName]);
+  }, [form, createEvent, router, errorMessage, validate, fileName, dispatch]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#101820" }}>

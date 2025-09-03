@@ -31,6 +31,9 @@ export const eventsSlice = createSlice({
     setTrendingEvents: (state, { payload }: PayloadAction<Event[]>) => {
       state.trendingEvents = payload;
     },
+    addUpcomingEvent: (state, { payload }: PayloadAction<Event>) => {
+      state.upcomingEvents = [...state.upcomingEvents, payload]
+    },
     addInterestedEvent: (
       state,
       { payload }: PayloadAction<{ event: Event; username: string }>
@@ -129,6 +132,7 @@ export const {
   setUserGoingEvents,
   setUserInterestedEvents,
   setTrendingEvents,
+  addUpcomingEvent,
   addInterestedEvent,
   removeInterestedEvent,
   addGoingEvent,

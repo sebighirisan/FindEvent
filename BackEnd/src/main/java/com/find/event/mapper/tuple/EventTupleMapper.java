@@ -11,7 +11,8 @@ import lombok.NoArgsConstructor;
 import org.geolatte.geom.Point;
 import org.geolatte.geom.Position;
 
-import static com.find.event.utils.MapperUtils.extractByteArrayFromTuple;
+import java.util.Optional;
+
 import static com.find.event.utils.MapperUtils.extractLocalDateTimeValueFromTuple;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -40,13 +41,14 @@ public final class EventTupleMapper {
 
         // Event
         return EventDTO.builder()
+                .id(Long.valueOf(tuple.get("id", Integer.class)))
                 .description(tuple.get("description", String.class))
                 .name(tuple.get("name", String.class))
                 .type(eventTypeEnum.getName())
                 .startDate(extractLocalDateTimeValueFromTuple(tuple, "startDate"))
                 .endDate(extractLocalDateTimeValueFromTuple(tuple, "endDate"))
                 .hyperlink(tuple.get("hyperlink", String.class))
-                // .splashImage(extractByteArrayFromTuple(tuple, "splashImage"))
+                .hasSplashImage(Optional.ofNullable(tuple.get("splashImage")).isPresent())
                 .publisher(publisher)
                 .status(eventStatusEnum)
                 .location(location)

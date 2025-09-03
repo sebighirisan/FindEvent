@@ -32,17 +32,23 @@ const Dashboard = () => {
   }>();
 
   const events = useSelector((state: RootState) => state.events.upcomingEvents);
+  const [proximity, setProximity] = useState<string>();
+  const [proximityNumber, setProximityNumber] = useState<number>();
+
 
   const {
     data: upcomingEvents,
     error,
     isLoading,
-  } = useFetchUpcomingEventsQuery();
+  } = useFetchUpcomingEventsQuery({
+    name: eventName,
+    proximity: proximityNumber ? (proximityNumber * 1000) : undefined,
+    latitude: userLocation?.lat,
+    longitude: userLocation?.lng
+  });
 
   const [errorMessage, setErrorMessage] = useState("");
   const dispatch = useDispatch();
-
-  const [proximity, setProximity] = useState<number>();
 
   useEffect(() => {
     if (upcomingEvents) {
@@ -84,6 +90,20 @@ const Dashboard = () => {
 
     return true;
   }, [locationPermissionInformation, requestPermission]);
+
+  const updateProximity = (newProximity: string) => {
+    setProximity(newProximity);
+    
+    if (!newProximity || newProximity.trim() === '') {
+      setProximityNumber(undefined);
+    }
+
+    try { 
+      setProximityNumber(Number(newProximity)); 
+    } catch(err) {
+      console.log(err);
+    }
+  }
 
   const getUserLocation = useCallback(async () => {
     const hasPermission = await verifyPermissions();
@@ -128,9 +148,8 @@ const Dashboard = () => {
             <TextInput
               style={styles.searchBarDark}
               keyboardType="numeric"
-              onChangeText={(newProximity) => {
-                setProximity(Number(newProximity));
-              }}
+              value={proximity}
+              onChangeText={updateProximity}
               placeholder="Proximity"
               placeholderTextColor="#94a3b8"
             ></TextInput>
