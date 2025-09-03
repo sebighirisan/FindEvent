@@ -5,6 +5,12 @@ import {
   useUpdateAttendanceStatusMutation,
 } from "@/store/features/events/event-api";
 import {
+  addGoingEvent,
+  addInterestedEvent,
+  removeGoingEvent,
+  removeInterestedEvent,
+} from "@/store/features/events/event-slice";
+import {
   DEFAULT_EVENT_TYPE_CONFIG,
   getColorByEventType,
   getIconByEventType,
@@ -26,19 +32,13 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 interface EventCardProps {
   event: Event;
-  onRemovingInterested?: (id: number) => void;
-  onRemovingGoing?: (id: number) => void;
 }
 
-const EventCard = ({
-  event,
-  onRemovingGoing,
-  onRemovingInterested,
-}: EventCardProps) => {
+const EventCard = ({ event }: EventCardProps) => {
   const [eventTypeColor, setEventTypeColor] = useState("white");
   const [eventTypeIcon, setEventTypeIcon] = useState<IconName>(
     DEFAULT_EVENT_TYPE_CONFIG.icon
@@ -57,7 +57,7 @@ const EventCard = ({
   const [deleteAttendanceStatus] = useDeleteAttendanceStatusMutation();
   const [updateAttendanceStatus] = useUpdateAttendanceStatusMutation();
 
-  const username = useSelector((state: RootState) => state.auth.username);
+  const username = useSelector((state: RootState) => state.auth.username)!;
 
   useEffect(() => {
     setLatitude(event.location.latitude);
@@ -88,6 +88,8 @@ const EventCard = ({
     router.push({ pathname: "/event/[id]", params: { id: String(event.id) } });
   };
 
+  const dispatch = useDispatch();
+
   const onAttendingButtonPressed = useCallback(async () => {
     try {
       if (isGoing) {
@@ -95,27 +97,14 @@ const EventCard = ({
           id: event.id,
         });
 
-        setIsGoing(false);
-        setAttendees((prevAttendees) =>
-          prevAttendees.filter((attendee) => attendee !== username)
-        );
-
-        onRemovingGoing?.(event.id);
+        dispatch(removeGoingEvent({ event, username }));
       } else {
         await updateAttendanceStatus({
           id: event.id,
           attendanceStatus: AttendanceStatusEnum.GOING,
         });
 
-        if (isInterested) {
-          setIsInterested(false);
-          setInterested((prevInterested) =>
-            prevInterested.filter((interested) => interested !== username)
-          );
-        }
-
-        setIsGoing(true);
-        setAttendees((prevAttendees) => [...prevAttendees, username!]);
+        dispatch(addGoingEvent({ event, username }));
       }
     } catch (err) {
       console.log(err);
@@ -125,11 +114,10 @@ const EventCard = ({
   }, [
     deleteAttendanceStatus,
     updateAttendanceStatus,
-    event.id,
     isGoing,
-    isInterested,
     username,
-    onRemovingGoing,
+    dispatch,
+    event,
   ]);
 
   const onInterestedButtonPressed = useCallback(async () => {
@@ -139,27 +127,14 @@ const EventCard = ({
           id: event.id,
         });
 
-        setIsInterested(false);
-        setInterested((prevInterested) =>
-          prevInterested.filter((interested) => interested !== username)
-        );
-
-        onRemovingInterested?.(event.id);
+        dispatch(removeInterestedEvent({ event, username }));
       } else {
         await updateAttendanceStatus({
           id: event.id,
           attendanceStatus: AttendanceStatusEnum.INTERESTED,
         });
 
-        if (isGoing) {
-          setIsGoing(false);
-          setAttendees((prevAttendees) =>
-            prevAttendees.filter((attendee) => attendee !== username)
-          );
-        }
-
-        setIsInterested(true);
-        setInterested((prevInterested) => [...prevInterested, username!]);
+        dispatch(addInterestedEvent({ event, username }));
       }
     } catch (err) {
       console.log(err);
@@ -169,11 +144,10 @@ const EventCard = ({
   }, [
     deleteAttendanceStatus,
     updateAttendanceStatus,
-    event.id,
-    isGoing,
+    event,
     isInterested,
     username,
-    onRemovingInterested
+    dispatch
   ]);
 
   return (

@@ -91,17 +91,15 @@ public class EventRepository {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public List<EventDTO> getEvents(Integer pageNo,
-                                    Integer pageSize,
-                                    String orderBy,
+    public List<EventDTO> getEvents(String orderBy,
                                     String orderValue,
                                     Map<String, Object> filters) {
         String orderedQuery = composeQueryWithOrdering(
                 EVENT_ORDER_BY_FIELDS, EVENT_QUERY, orderBy, orderValue
         );
 
-        int firstResult = pageNo == -1 ? 0 : pageNo * pageSize;
-        int maxResults = pageNo == -1 ? Integer.MAX_VALUE : pageSize;
+        int firstResult = 0;
+        int maxResults = Integer.MAX_VALUE;
 
         Query query = entityManager.createNativeQuery(orderedQuery, Tuple.class)
                 .setFirstResult(firstResult)
@@ -112,13 +110,5 @@ public class EventRepository {
         return ((Stream<Tuple>) query.getResultStream())
                 .map(EventTupleMapper::tupleToEventDto)
                 .toList();
-    }
-
-    public Long getEventsCount(Map<String, Object> filters) {
-        Query query = entityManager.createNativeQuery(EVENT_COUNT_QUERY, Long.class);
-
-        filters.forEach(query::setParameter);
-
-        return (Long) query.getSingleResult();
     }
 }

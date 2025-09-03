@@ -29,7 +29,7 @@ public interface EventJpaRepository extends JpaRepository<EventEntity, Long> {
             GROUP BY e.id, es.event_id, u.id
             ORDER BY COUNT(a.event_id) DESC
            """, nativeQuery = true)
-    Page<EventEntity> findTrendingEvents(Pageable pageable);
+    List<EventEntity> findTrendingEvents();
 
     @Query("""
            SELECT DISTINCT e FROM EventEntity e
@@ -39,7 +39,7 @@ public interface EventJpaRepository extends JpaRepository<EventEntity, Long> {
            JOIN ea.user u
            WHERE u.id = :userId AND ea.attendanceStatus = 'GOING'
            """)
-    Page<EventEntity> findGoingEvents(@Param("userId") Long userId, Pageable pageable);
+    List<EventEntity> findGoingEvents(@Param("userId") Long userId);
 
     @Query("""
            SELECT DISTINCT e FROM EventEntity e
@@ -49,7 +49,7 @@ public interface EventJpaRepository extends JpaRepository<EventEntity, Long> {
            JOIN ea.user u
            WHERE u.id = :userId AND ea.attendanceStatus = 'INTERESTED'
            """)
-    Page<EventEntity> findInterestedEvents(@Param("userId") Long userId, Pageable pageable);
+    List<EventEntity> findInterestedEvents(@Param("userId") Long userId);
 
     @Query("""
            SELECT DISTINCT e FROM EventEntity e

@@ -30,14 +30,13 @@ const Login = () => {
   const [login, { error }] = useLoginMutation();
 
   // --- Validare locală (câmpuri goale / format email / min lungime parolă)
-  const validate = () => {
+  const validate = useCallback(() => {
     const newErrors: { email?: string; password?: string } = {};
-    if (!form.email.trim()) newErrors.email = "Emailul este obligatoriu.";
-    if (!form.password.trim()) newErrors.password = "Parola este obligatorie.";
-    else if (form.password.length < 6) newErrors.password = "Parola trebuie să aibă minim 6 caractere.";
+    if (!form.email.trim()) newErrors.email = "Email or username is required.";
+    if (!form.password.trim()) newErrors.password = "Password is required.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
+  }, [form]);
 
   // --- Mapare erori backend -> mesaj „Parola e greșită.”
   useEffect(() => {
@@ -63,7 +62,7 @@ const Login = () => {
       setErrors((prev) => ({ ...prev, password: "Parola e greșită." }));
       setErrorMessage(""); // nu mai arătăm banner generic
     } else {
-      setErrorMessage(serverMsg || "A apărut o eroare la autentificare.");
+      setErrorMessage(serverMsg || "An error occurred while authenticating.");
     }
   }, [error]);
 
@@ -89,7 +88,7 @@ const Login = () => {
       setErrorMessage("");
       console.log("Login failed: ", err);
     }
-  }, [form, login, dispatch, RouterNavigation, buttonChecked]);
+  }, [form, login, dispatch, RouterNavigation, buttonChecked, validate]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#101820" }}>

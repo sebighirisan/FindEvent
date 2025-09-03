@@ -1,6 +1,7 @@
 import { ErrorResponse } from "@/model/error.model";
-import { Event } from "@/model/event.model";
+import { RootState } from "@/store";
 import { useFetchTrendingEventsQuery } from "@/store/features/events/event-api";
+import { setTrendingEvents } from "@/store/features/events/event-slice";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -9,24 +10,16 @@ import {
   Text,
   View,
 } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
 import EventCard from "../components/EventCard";
-import ShowMoreButton from "../components/ShowMoreButton";
-import {
-  DEFAULT_PAGE_NUMBER,
-  DEFAULT_PAGE_SIZE,
-} from "../constants/paging.constants";
 import styles from "../styles/UITheme";
 
 const Trending = () => {
-  const [page, setPage] = useState(DEFAULT_PAGE_NUMBER);
-  const { data, isLoading, error } = useFetchTrendingEventsQuery({
-    page,
-    size: DEFAULT_PAGE_SIZE,
-  });
+  const { data, isLoading, error } = useFetchTrendingEventsQuery();
+
+  const trendingEvents = useSelector((state: RootState) => state.events.trendingEvents);
 
   const [errorMessage, setErrorMessage] = useState("");
-  const [events, setEvents] = useState<Event[]>([]);
-  const [isFilled, setIsFilled] = useState<boolean>(false);
 
   useEffect(() => {
     if (error && "data" in error) {
@@ -36,15 +29,13 @@ const Trending = () => {
     }
   }, [error]);
 
-  useEffect(() => {
-    if (data?.items?.length) {
-      setEvents((prev) => [...prev, ...data?.items]); // append new results
-    }
-  }, [data]);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    setIsFilled(data?.metadata?.totalCount === events.length);
-  }, [data, events]);
+    if (data) {
+      dispatch(setTrendingEvents(data));
+    }
+  }, [data, dispatch]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#101820" }}>
@@ -64,20 +55,12 @@ const Trending = () => {
           </View>
         )}
         {isLoading && <ActivityIndicator color="#fff" />}
-        {!isLoading && !!events?.length ? (
-          events.map((event) => <EventCard key={event.id} event={event} />)
+        {!!trendingEvents?.length ? (
+          trendingEvents.map((event) => <EventCard key={event.id} event={event} />)
         ) : (
           <View style={styles.emptyWrap}>
             <Text style={styles.emptyText}>No trending events yet.</Text>
           </View>
-        )}
-        {!isFilled && (
-          <ShowMoreButton
-            onPress={() => setPage((prevPage) => prevPage + 1)}
-            isLoading={isLoading}
-            disabled={isFilled}
-            label="Show more"
-          />
         )}
       </ScrollView>
     </SafeAreaView>

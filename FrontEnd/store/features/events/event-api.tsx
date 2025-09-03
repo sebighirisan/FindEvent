@@ -4,7 +4,6 @@ import {
   EventCategoryWithTypes,
   EventRequest,
 } from "@/model/event.model";
-import { PaginatedResponseModel } from "@/model/paging.model";
 import { RootState } from "@/store";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
@@ -22,15 +21,13 @@ export const eventApi = createApi({
   }),
   endpoints: (builder) => ({
     fetchPersonalizedEvents: builder.query<
-      PaginatedResponseModel<Event>,
-      { page: number; size: number; attendanceStatus: AttendanceStatusEnum }
+      Event[],
+      { attendanceStatus: AttendanceStatusEnum }
     >({
-      query: ({ page, size, attendanceStatus }) => ({
+      query: ({ attendanceStatus }) => ({
         url: "me",
         method: "GET",
         params: {
-          pageNumber: page,
-          pageSize: size,
           attendanceStatus,
         },
       }),
@@ -41,17 +38,10 @@ export const eventApi = createApi({
         method: "GET",
       }),
     }),
-    fetchTrendingEvents: builder.query<
-      PaginatedResponseModel<Event>,
-      { page: number; size: number }
-    >({
-      query: ({ page, size }) => ({
+    fetchTrendingEvents: builder.query<Event[], void>({
+      query: () => ({
         url: "trending",
         method: "GET",
-        params: {
-          pageNumber: page,
-          pageSize: size,
-        },
       }),
     }),
     fetchUpcomingEvents: builder.query<Event[], void>({
@@ -87,7 +77,10 @@ export const eventApi = createApi({
         formData.append("type", type);
         formData.append("startDate", startDate);
         formData.append("endDate", endDate);
-        formData.append("splashImage", splashImage);
+
+        if (splashImage) {
+          formData.append("splashImage", splashImage);
+        }
 
         return {
           url: "",
@@ -96,13 +89,16 @@ export const eventApi = createApi({
         };
       },
     }),
-    updateAttendanceStatus: builder.mutation<any, {id: number, attendanceStatus: AttendanceStatusEnum}>({
+    updateAttendanceStatus: builder.mutation<
+      any,
+      { id: number; attendanceStatus: AttendanceStatusEnum }
+    >({
       query: ({ id, attendanceStatus }) => ({
         url: `${id}/attendance`,
         method: "PUT",
         params: {
-          status: attendanceStatus
-        }
+          status: attendanceStatus,
+        },
       }),
     }),
     deleteAttendanceStatus: builder.mutation<any, { id: number }>({
@@ -122,5 +118,5 @@ export const {
   useFetchEventByIdQuery,
   useCreateEventMutation,
   useDeleteAttendanceStatusMutation,
-  useUpdateAttendanceStatusMutation
+  useUpdateAttendanceStatusMutation,
 } = eventApi;

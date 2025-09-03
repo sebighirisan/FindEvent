@@ -1,7 +1,6 @@
 package com.find.event.service;
 
 import com.find.event.enums.AttendanceStatusEnum;
-import com.find.event.model.pagination.PaginatedModel;
 import com.find.event.model.category.EventCategoryWithTypesDTO;
 import com.find.event.model.event.EventDTO;
 import com.find.event.model.event.EventRequestDTO;
@@ -22,12 +21,12 @@ public interface EventService {
      * @param orderValue  the sort direction (e.g., "asc" or "desc")
      * @return a paginated model containing the list of matching {@link EventDTO} objects
      */
-    PaginatedModel<EventDTO> getEvents(Integer pageNumber,
-                                       Integer pageSize,
-                                       String filterBy,
-                                       String filterValue,
-                                       String orderBy,
-                                       String orderValue);
+    List<EventDTO> getEvents(Integer pageNumber,
+                             Integer pageSize,
+                             String filterBy,
+                             String filterValue,
+                             String orderBy,
+                             String orderValue);
 
     /**
      * Retrieves a single event by its unique identifier.
@@ -84,18 +83,15 @@ public interface EventService {
      *
      * @return a list of {@link EventDTO} objects representing the trending events
      */
-    PaginatedModel<EventDTO> getTrendingEvents(Integer pageSize, Integer pageNumber);
+    List<EventDTO> getTrendingEvents(Integer pageSize, Integer pageNumber);
 
     byte[] getEventImage(Long eventId);
 
-    // TODO: Add Javadoc
-    PaginatedModel<EventDTO> getPersonalEvents(Integer pageSize,
-                                               Integer pageNumber,
-                                               AttendanceStatusEnum attendanceStatus);
+    List<EventDTO> getPersonalEvents(Integer pageSize,
+                                     Integer pageNumber,
+                                     AttendanceStatusEnum attendanceStatus);
 
-    // TODO: Add Javadoc
     List<EventDTO> getUpcomingEvents();
 
-    // TODO: Add JavaDoc
-    PaginatedModel<EventDTO> getEventsSuggestions(Integer pageSize, Integer pageNumber);
+    List<EventDTO> getEventsSuggestions(Integer pageSize, Integer pageNumber);
 }

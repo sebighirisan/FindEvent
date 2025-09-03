@@ -1,7 +1,6 @@
 package com.find.event.controller;
 
 import com.find.event.enums.AttendanceStatusEnum;
-import com.find.event.model.pagination.PaginatedModel;
 import com.find.event.model.category.EventCategoryWithTypesDTO;
 import com.find.event.model.event.EventDTO;
 import com.find.event.model.event.EventRequestDTO;
@@ -37,12 +36,12 @@ public class EventController {
     }
 
     @GetMapping
-    public ResponseEntity<PaginatedModel<EventDTO>> getEvents(@RequestParam(name = "filterBy", required = false) String filterBy,
-                                                              @RequestParam(name = "filterValue", required = false) String filterValue,
-                                                              @RequestParam(name = "orderBy", required = false) String orderBy,
-                                                              @RequestParam(name = "orderValue", required = false) String orderValue,
-                                                              @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
-                                                              @RequestParam(name = "pageNumber", defaultValue = "0") Integer pageNumber) {
+    public ResponseEntity<List<EventDTO>> getEvents(@RequestParam(name = "filterBy", required = false) String filterBy,
+                                                    @RequestParam(name = "filterValue", required = false) String filterValue,
+                                                    @RequestParam(name = "orderBy", required = false) String orderBy,
+                                                    @RequestParam(name = "orderValue", required = false) String orderValue,
+                                                    @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                                                    @RequestParam(name = "pageNumber", defaultValue = "0") Integer pageNumber) {
         return new ResponseEntity<>(eventService.getEvents(
                 pageNumber, pageSize, filterBy, filterValue, orderBy, orderValue), HttpStatus.OK);
     }
@@ -105,7 +104,7 @@ public class EventController {
     }
 
     @GetMapping("/trending")
-    public ResponseEntity<PaginatedModel<EventDTO>> getTrendingEvents(@RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+    public ResponseEntity<List<EventDTO>> getTrendingEvents(@RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
                                                             @RequestParam(name = "pageNumber", defaultValue = "0") Integer pageNumber) {
         return new ResponseEntity<>(eventService.getTrendingEvents(pageSize, pageNumber), HttpStatus.OK);
     }
@@ -116,15 +115,15 @@ public class EventController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<PaginatedModel<EventDTO>> getPersonalEvents(@RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
-                                                                      @RequestParam(name = "pageNumber", defaultValue = "0") Integer pageNumber,
-                                                                      @RequestParam(name = "attendanceStatus") AttendanceStatusEnum attendanceStatus) {
+    public ResponseEntity<List<EventDTO>> getPersonalEvents(@RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                                                            @RequestParam(name = "pageNumber", defaultValue = "0") Integer pageNumber,
+                                                            @RequestParam(name = "attendanceStatus") AttendanceStatusEnum attendanceStatus) {
         return new ResponseEntity<>(eventService.getPersonalEvents(pageSize, pageNumber, attendanceStatus), HttpStatus.OK);
     }
 
     @GetMapping("/suggestions")
-    public ResponseEntity<PaginatedModel<EventDTO>> getEventsSuggestions(@RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
-                                                                         @RequestParam(name = "pageNumber", defaultValue = "0") Integer pageNumber) {
+    public ResponseEntity<List<EventDTO>> getEventsSuggestions(@RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                                                               @RequestParam(name = "pageNumber", defaultValue = "0") Integer pageNumber) {
         return new ResponseEntity<>(eventService.getEventsSuggestions(pageSize, pageNumber), HttpStatus.OK);
     }
 }

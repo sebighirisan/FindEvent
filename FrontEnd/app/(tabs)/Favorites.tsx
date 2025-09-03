@@ -1,7 +1,11 @@
-// app/(tabs)/Favorites.tsx
-import { AttendanceStatusEnum, Event } from "@/model/event.model";
+import { AttendanceStatusEnum } from "@/model/event.model";
+import { RootState } from "@/store";
 import { useFetchPersonalizedEventsQuery } from "@/store/features/events/event-api";
-import React, { useEffect, useState } from "react";
+import {
+  setUserGoingEvents,
+  setUserInterestedEvents,
+} from "@/store/features/events/event-slice";
+import React, { useEffect } from "react";
 import {
   ActivityIndicator,
   RefreshControl,
@@ -10,82 +14,50 @@ import {
   Text,
   View,
 } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
 import EventCard from "../components/EventCard";
 import ExpansionPanel from "../components/ExpansionPanel";
-import {
-  DEFAULT_PAGE_NUMBER,
-  DEFAULT_PAGE_SIZE,
-} from "../constants/paging.constants";
 import styles from "../styles/UITheme";
 
 const Favorites = () => {
+  const dispatch = useDispatch();
+
+  const interestedEvents = useSelector(
+    (state: RootState) => state.events.userInterestedEvents
+  );
+  const goingEvents = useSelector(
+    (state: RootState) => state.events.userGoingEvents
+  );
+
   /* Interested Events */
-  const [interestedEventsPage, setInterestedEventsPage] =
-    useState(DEFAULT_PAGE_NUMBER);
   const {
     data: interestedEventsData,
     isLoading: interestedEventsLoading,
     error: interestedEventsError,
   } = useFetchPersonalizedEventsQuery({
-    page: interestedEventsPage,
-    size: DEFAULT_PAGE_SIZE,
     attendanceStatus: AttendanceStatusEnum.INTERESTED,
   });
 
-  const [interestedEvents, setInterestedEvents] = useState<Event[]>([]);
-  const [interestedEventsFilled, setInterestedEventsFilled] =
-    useState<boolean>(false);
-
   useEffect(() => {
-    if (interestedEventsData?.items?.length) {
-      setInterestedEvents((prev) => [...prev, ...interestedEventsData?.items]); // append new results
+    if (interestedEventsData) {
+      dispatch(setUserInterestedEvents(interestedEventsData));
     }
-  }, [interestedEventsData]);
-
-  useEffect(() => {
-    setInterestedEventsFilled(
-      interestedEventsData?.metadata?.totalCount === interestedEvents.length
-    );
-  }, [interestedEventsData, interestedEvents]);
+  }, [interestedEventsData, dispatch]);
 
   /* Going Events */
-  const [goingEventsPage, setGoingEventsPage] = useState(DEFAULT_PAGE_NUMBER);
   const {
     data: goingEventsData,
     isLoading: goingEventsLoading,
     error: goingEventsError,
   } = useFetchPersonalizedEventsQuery({
-    page: goingEventsPage,
-    size: DEFAULT_PAGE_SIZE,
     attendanceStatus: AttendanceStatusEnum.GOING,
   });
 
-  const [goingEvents, setGoingEvents] = useState<Event[]>([]);
-  const [goingEventsFilled, setGoingEventsFilled] = useState<boolean>(false);
-
   useEffect(() => {
-    if (goingEventsData?.items?.length) {
-      setGoingEvents((prev) => [...prev, ...goingEventsData?.items]); // append new results
+    if (goingEventsData) {
+      dispatch(setUserGoingEvents(goingEventsData));
     }
-  }, [goingEventsData]);
-
-  useEffect(() => {
-    setGoingEventsFilled(
-      goingEventsData?.metadata?.totalCount === goingEvents.length
-    );
-  }, [goingEventsData, goingEvents]);
-
-  const toggleGoingEventStatusHandler = (id: number) => {
-    setGoingEvents((prevGoingEvents) =>
-      prevGoingEvents.filter((event) => event.id !== id)
-    );
-  };
-
-  const toggleInterestedEventStatusHandler = (id: number) => {
-    setInterestedEvents((prevGoingEvents) =>
-      prevGoingEvents.filter((event) => event.id !== id)
-    );
-  };
+  }, [goingEventsData, dispatch]);
 
   return (
     <SafeAreaView style={styles.rootDark}>
@@ -128,12 +100,11 @@ const Favorites = () => {
               <EventCard
                 key={event.id}
                 event={event}
-                onRemovingGoing={(id) => toggleGoingEventStatusHandler(id)}
               />
             ))
           ) : (
             <View style={styles.emptyWrap}>
-              <Text style={styles.emptyText}>No favorite events yet.</Text>
+              <Text style={styles.emptyText}>No attending events yet.</Text>
               <Text
                 style={[
                   styles.eventSubtitle,
@@ -154,9 +125,6 @@ const Favorites = () => {
               <EventCard
                 key={event.id}
                 event={event}
-                onRemovingInterested={(id) =>
-                  toggleInterestedEventStatusHandler(id)
-                }
               />
             ))
           ) : (

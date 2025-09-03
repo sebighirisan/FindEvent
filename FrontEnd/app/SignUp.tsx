@@ -75,32 +75,32 @@ const SignUp = () => {
   }, [error]);
 
   // validare locală
-  const validate = (): boolean => {
+  const validate = useCallback((): boolean => {
     const newErr: Partial<Record<keyof typeof form, string>> = {};
 
-    if (!form.firstname.trim()) newErr.firstname = "Prenumele este obligatoriu.";
-    if (!form.lastname.trim()) newErr.lastname = "Numele este obligatoriu.";
+    if (!form.firstname.trim()) newErr.firstname = "First name is required.";
+    if (!form.lastname.trim()) newErr.lastname = "Last name is required.";
 
-    if (!form.email.trim()) newErr.email = "Emailul este obligatoriu.";
+    if (!form.email.trim()) newErr.email = "Email is required.";
     else if (!/\S+@\S+\.\S+/.test(form.email))
-      newErr.email = "Introdu un email valid.";
+      newErr.email = "Please enter a valid email.";
 
-    if (!form.username.trim()) newErr.username = "Username-ul este obligatoriu.";
+    if (!form.username.trim()) newErr.username = "Username is required.";
     else if (form.username.trim().length < 3)
-      newErr.username = "Username-ul trebuie să aibă minim 3 caractere.";
+      newErr.username = "Username must have at least three characters.";
 
-    if (!form.password.trim()) newErr.password = "Parola este obligatorie.";
+    if (!form.password.trim()) newErr.password = "Password is required.";
     else if (form.password.length < 6)
-      newErr.password = "Parola trebuie să aibă minim 6 caractere.";
+      newErr.password = "Password must have at least six characters.";
 
     if (!form.confirmedpassword.trim())
-      newErr.confirmedpassword = "Confirmarea parolei este obligatorie.";
+      newErr.confirmedpassword = "Password confirmation is required.";
     else if (form.confirmedpassword !== form.password)
-      newErr.confirmedpassword = "Parolele nu coincid.";
+      newErr.confirmedpassword = "Passwords do not match.";
 
     setErrors(newErr);
     return Object.keys(newErr).length === 0;
-  };
+  }, [form]);
 
   const handleSignup = useCallback(async () => {
     if (!validate()) return;
@@ -122,7 +122,7 @@ const SignUp = () => {
       if (!errorMessage) setErrorMessage("Înregistrarea a eșuat. Încearcă din nou.");
       console.log("Signup Failed ", err);
     }
-  }, [form, signup, RouterNavigation, errorMessage]);
+  }, [form, signup, RouterNavigation, errorMessage, validate]);
 
   // helper pentru a curăța eroarea câmpului la scriere
   const onChangeField = (key: keyof typeof form) => (value: string) => {
