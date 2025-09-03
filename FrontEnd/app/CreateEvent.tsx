@@ -215,7 +215,7 @@ const CreateEvent = () => {
       },
       startDate: startISO,
       endDate: endISO,
-      hyperlink: form.hyperlink.trim(),
+      hyperlink: form.hyperlink.trim(), 
       type: form.type.trim(),
       description: form.description.trim(),
       splashImage: form.splashImage ? {
