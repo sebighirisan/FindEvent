@@ -1,10 +1,17 @@
 import { AttendanceStatusEnum, Event } from "@/model/event.model";
+import { RootState } from "@/store";
+import {
+  useDeleteAttendanceStatusMutation,
+  useUpdateAttendanceStatusMutation,
+} from "@/store/features/events/event-api";
 import {
   DEFAULT_EVENT_TYPE_CONFIG,
   getColorByEventType,
   getIconByEventType,
   IconName,
 } from "@/utils/color.util";
+import formatDate from "@/utils/date.utils";
+import { getMapPreview } from "@/utils/location.util";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router"; // 👈 adăugat
 import { useCallback, useEffect, useState } from "react";
@@ -13,28 +20,25 @@ import {
   Image,
   Linking,
   Modal,
-  Platform,
   Pressable,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-
-import { RootState } from "@/store";
-import {
-  useDeleteAttendanceStatusMutation,
-  useUpdateAttendanceStatusMutation,
-} from "@/store/features/events/event-api";
-import formatDate from "@/utils/date.utils";
-import { getMapPreview } from "@/utils/location.util";
 import { useSelector } from "react-redux";
 
 interface EventCardProps {
   event: Event;
+  onRemovingInterested?: (id: number) => void;
+  onRemovingGoing?: (id: number) => void;
 }
 
-const EventCard = ({ event }: EventCardProps) => {
+const EventCard = ({
+  event,
+  onRemovingGoing,
+  onRemovingInterested,
+}: EventCardProps) => {
   const [eventTypeColor, setEventTypeColor] = useState("white");
   const [eventTypeIcon, setEventTypeIcon] = useState<IconName>(
     DEFAULT_EVENT_TYPE_CONFIG.icon
@@ -95,6 +99,8 @@ const EventCard = ({ event }: EventCardProps) => {
         setAttendees((prevAttendees) =>
           prevAttendees.filter((attendee) => attendee !== username)
         );
+
+        onRemovingGoing?.(event.id);
       } else {
         await updateAttendanceStatus({
           id: event.id,
@@ -123,6 +129,7 @@ const EventCard = ({ event }: EventCardProps) => {
     isGoing,
     isInterested,
     username,
+    onRemovingGoing,
   ]);
 
   const onInterestedButtonPressed = useCallback(async () => {
@@ -136,6 +143,8 @@ const EventCard = ({ event }: EventCardProps) => {
         setInterested((prevInterested) =>
           prevInterested.filter((interested) => interested !== username)
         );
+
+        onRemovingInterested?.(event.id);
       } else {
         await updateAttendanceStatus({
           id: event.id,
@@ -164,6 +173,7 @@ const EventCard = ({ event }: EventCardProps) => {
     isGoing,
     isInterested,
     username,
+    onRemovingInterested
   ]);
 
   return (
@@ -180,15 +190,10 @@ const EventCard = ({ event }: EventCardProps) => {
         >
           <View style={styles.overlay}>
             <View style={styles.modalContent}>
-              {Platform.OS === "web" ? (
-                <Image
-                  style={styles.mapPreviewLocation}
-                  source={{ uri: getMapPreview(latitude, longitude) }}
-                />
-              ) : (
-                <></>
-                // <Map lat={latitude} lng={longitude} locationName={event.name} />
-              )}
+              <Image
+                style={styles.mapPreviewLocation}
+                source={{ uri: getMapPreview(latitude, longitude) }}
+              />
               <View style={{ alignItems: "center" }}>
                 <TouchableOpacity
                   style={{ ...styles.mapButton, backgroundColor: "red" }}
@@ -320,7 +325,8 @@ const EventCard = ({ event }: EventCardProps) => {
 
 const styles = StyleSheet.create({
   card: {
-    maxWidth: 500,
+    width: 500,
+    maxWidth: "90%",
     backgroundColor: "#182333",
     borderWidth: 1,
     borderColor: "#263241",
@@ -339,7 +345,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "800",
     marginBottom: 4,
-    paddingRight: 16,
+    paddingRight: 48,
   },
   publisher: { fontSize: 14, color: "#9CA3AF", marginBottom: 4 },
   typeContainer: { flexDirection: "row", alignItems: "center" },
@@ -353,7 +359,6 @@ const styles = StyleSheet.create({
   actionsRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: "auto",
   },
   mapButton: {
     flexDirection: "row",

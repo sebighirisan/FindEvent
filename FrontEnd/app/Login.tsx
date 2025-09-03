@@ -33,7 +33,6 @@ const Login = () => {
   const validate = () => {
     const newErrors: { email?: string; password?: string } = {};
     if (!form.email.trim()) newErrors.email = "Emailul este obligatoriu.";
-    else if (!/\S+@\S+\.\S+/.test(form.email)) newErrors.email = "Introdu un email valid.";
     if (!form.password.trim()) newErrors.password = "Parola este obligatorie.";
     else if (form.password.length < 6) newErrors.password = "Parola trebuie să aibă minim 6 caractere.";
     setErrors(newErrors);

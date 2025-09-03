@@ -5,6 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  LogBox,
   Modal,
   ScrollView,
   SectionList,
@@ -12,9 +13,10 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import styles from "../styles/UITheme";
+
 
 interface GroupedData {
   title: string;
@@ -26,12 +28,19 @@ interface GroupedSelectProps {
   label?: string;
 }
 
-export default function GroupedSelect({ onChangeCategory, label }: GroupedSelectProps) {
+export default function GroupedSelect({
+  onChangeCategory,
+  label,
+}: GroupedSelectProps) {
   const { data, isLoading, error } = useFetchEventTypesQuery();
 
   const [groupedData, setGroupedData] = useState<GroupedData[]>();
   const [categoryTypeRecord, setCategoryTypeRecord] =
     useState<Record<string, string>>();
+
+  useEffect(() => {
+    LogBox.ignoreLogs(["VirtualizedLists should never be nested"]);
+  }, []);
 
   const [errorMessage, setErrorMessage] = useState<string>();
 
@@ -87,19 +96,21 @@ export default function GroupedSelect({ onChangeCategory, label }: GroupedSelect
   return (
     <View style={styles.input}>
       <TouchableOpacity onPress={() => setOpen(true)}>
-        <Text style={styles.inputLabel}>{label ?? "Select an option"}</Text>
-      </TouchableOpacity>
+        <View>
+          <Text style={styles.inputLabel}>{label ?? "Select an option"}</Text>
 
-      <TextInput
-        placeholder="Music Festival"
-        placeholderTextColor="#94a3b8"
-        style={styles.inputDark}
-        value={selected}
-        autoCapitalize="words"
-        editable={false}
-        autoCorrect={false}
-        clearButtonMode="while-editing"
-      />
+          <TextInput
+            placeholder="Music Festival"
+            placeholderTextColor="#94a3b8"
+            style={styles.inputDark}
+            value={selected}
+            autoCapitalize="words"
+            editable={false}
+            autoCorrect={false}
+            clearButtonMode="while-editing"
+          />
+        </View>
+      </TouchableOpacity>
 
       <Modal visible={open} transparent animationType="slide">
         <View style={localStyles.modalOverlay}>

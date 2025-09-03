@@ -1,11 +1,9 @@
 // app/(tabs)/Favorites.tsx
 import { AttendanceStatusEnum, Event } from "@/model/event.model";
 import { useFetchPersonalizedEventsQuery } from "@/store/features/events/event-api";
-import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   RefreshControl,
   SafeAreaView,
   ScrollView,
@@ -77,26 +75,16 @@ const Favorites = () => {
     );
   }, [goingEventsData, goingEvents]);
 
-  const openEvent = (ev: Event) => {
-    router.push({
-      pathname: "/EventPage",
-      params: {
-        id: ev.id,
-      },
-    });
+  const toggleGoingEventStatusHandler = (id: number) => {
+    setGoingEvents((prevGoingEvents) =>
+      prevGoingEvents.filter((event) => event.id !== id)
+    );
   };
 
-  const confirmRemove = (ev: Event) => {
-    Alert.alert("Remove favorite", `Remove "${ev.name}" from Favorites?`, [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Remove",
-        style: "destructive",
-        onPress: async () => {
-          // TODO: Implement remove from favorites functionality
-        },
-      },
-    ]);
+  const toggleInterestedEventStatusHandler = (id: number) => {
+    setInterestedEvents((prevGoingEvents) =>
+      prevGoingEvents.filter((event) => event.id !== id)
+    );
   };
 
   return (
@@ -137,7 +125,11 @@ const Favorites = () => {
 
           {goingEvents && goingEvents.length > 0 ? (
             goingEvents.map((event) => (
-              <EventCard key={event.id} event={event} />
+              <EventCard
+                key={event.id}
+                event={event}
+                onRemovingGoing={(id) => toggleGoingEventStatusHandler(id)}
+              />
             ))
           ) : (
             <View style={styles.emptyWrap}>
@@ -159,7 +151,13 @@ const Favorites = () => {
 
           {interestedEvents && interestedEvents.length > 0 ? (
             interestedEvents.map((event) => (
-              <EventCard key={event.id} event={event} />
+              <EventCard
+                key={event.id}
+                event={event}
+                onRemovingInterested={(id) =>
+                  toggleInterestedEventStatusHandler(id)
+                }
+              />
             ))
           ) : (
             <View style={styles.emptyWrap}>

@@ -64,14 +64,13 @@ const Trending = () => {
           </View>
         )}
         {isLoading && <ActivityIndicator color="#fff" />}
-        {!isLoading && !!events.length ? (
+        {!isLoading && !!events?.length ? (
           events.map((event) => <EventCard key={event.id} event={event} />)
         ) : (
           <View style={styles.emptyWrap}>
             <Text style={styles.emptyText}>No trending events yet.</Text>
           </View>
         )}
-        ,
         {!isFilled && (
           <ShowMoreButton
             onPress={() => setPage((prevPage) => prevPage + 1)}
